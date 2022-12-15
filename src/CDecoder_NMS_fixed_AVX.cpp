@@ -166,9 +166,9 @@ bool CDecoder_NMS_fixed_AVX::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
         const TYPE min_var = VECTOR_SET1(vSAT_NEG_VAR);
         const TYPE max_msg = VECTOR_SET1(vSAT_POS_MSG);
 
-        for (int i = 0; i < code.DEG_1_COMPUTATIONS; i++)
+        for (int i = 0; i < code.DEGREES_COMPUTATIONS[0]; i++)
         {
-            TYPE tab_vContr[code.DEG_1];
+            TYPE tab_vContr[code.DEGREES[0]];
             TYPE sign = VECTOR_ZERO;
             TYPE min1 = VECTOR_SET1(vSAT_POS_VAR);
             TYPE min2 = min1;
@@ -183,12 +183,12 @@ bool CDecoder_NMS_fixed_AVX::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
 
 #if PETIT == 1
 #if MANUAL_PREFETCH == 1
-            _mm_prefetch((const char *)(p_indice_nod1[code.DEG_1]), _MM_HINT_T0);
-            _mm_prefetch((const char *)(&p_msg1r[code.DEG_1]), _MM_HINT_T0);
+            _mm_prefetch((const char *)(p_indice_nod1[code.DEGREES[0]]), _MM_HINT_T0);
+            _mm_prefetch((const char *)(&p_msg1r[code.DEGREES[0]]), _MM_HINT_T0);
 #endif
 #endif
-#pragma unroll(DEG_1)
-            for (int j = 0; j < code.DEG_1; j++)
+            // #pragma unroll(DEG_1)
+            for (int j = 0; j < code.DEGREES[0]; j++)
             {
 #if PETIT == 1
                 TYPE vNoeud = VECTOR_LOAD(*p_indice_nod1);
@@ -228,21 +228,21 @@ bool CDecoder_NMS_fixed_AVX::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
 
 #if PETIT == 1
 #if MANUAL_PREFETCH == 1
-            for (int j = 0; j < code.DEG_1; j++)
+            for (int j = 0; j < code.DEGREES[0]; j++)
             {
                 _mm_prefetch((const char *)(p_indice_nod1[j]), _MM_HINT_T0);
             }
-            _mm_prefetch((const char *)(p_indice_nod1[code.DEG_1]), _MM_HINT_T0);
+            _mm_prefetch((const char *)(p_indice_nod1[code.DEGREES[0]]), _MM_HINT_T0);
 #endif
 #endif
 
-            if ((code.DEG_1 & 0x01) == 1)
+            if ((code.DEGREES[0] & 0x01) == 1)
                 sign = VECTOR_XOR(sign, misign8);
             else
                 sign = VECTOR_XOR(sign, misign8b);
 
             // #pragma unroll(DEG_1)
-            for (int j = 0; j < code.DEG_1; j++)
+            for (int j = 0; j < code.DEGREES[0]; j++)
             {
                 TYPE vContr = tab_vContr[j];
                 TYPE vAbs = VECTOR_MIN(VECTOR_ABS(vContr), max_msg);
@@ -272,7 +272,7 @@ bool CDecoder_NMS_fixed_AVX::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
 
         if (code.NB_DEGRES >= 2)
         {
-            for (int i = 0; i < code.DEG_2_COMPUTATIONS; i++)
+            for (int i = 0; i < code.DEGREES_COMPUTATIONS[1]; i++)
             {
                 const unsigned char sign8 = 0x80;
                 const unsigned char isign8 = 0xC0;
@@ -281,13 +281,13 @@ bool CDecoder_NMS_fixed_AVX::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                 const TYPE misign8 = VECTOR_SET1(isign8);
                 const TYPE misign8b = VECTOR_SET1(isign8b);
 
-                TYPE tab_vContr[code.DEG_2];
+                TYPE tab_vContr[code.DEGREES[1]];
                 TYPE sign = VECTOR_ZERO;
                 TYPE min1 = VECTOR_SET1(vSAT_POS_VAR);
                 TYPE min2 = min1;
 
                 // #pragma unroll(DEG_2)
-                for (int j = 0; j < code.DEG_2; j++)
+                for (int j = 0; j < code.DEGREES[1]; j++)
                 {
 #if PETIT == 1
                     TYPE vNoeud = VECTOR_LOAD(*p_indice_nod1);
@@ -308,11 +308,11 @@ bool CDecoder_NMS_fixed_AVX::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                 }
 
 #if PETIT == 1
-                for (int j = 0; j < code.DEG_2; j++)
+                for (int j = 0; j < code.DEGREES[1]; j++)
                 {
                     _mm_prefetch((const char *)(p_indice_nod1[j]), _MM_HINT_T0);
                 }
-                _mm_prefetch((const char *)(p_indice_nod1[code.DEG_2]), _MM_HINT_T0);
+                _mm_prefetch((const char *)(p_indice_nod1[code.DEGREES[1]]), _MM_HINT_T0);
 #endif
 
                 TYPE norm_1 = VECTOR_SET2(factor_1);
@@ -333,14 +333,13 @@ bool CDecoder_NMS_fixed_AVX::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                 l_cste_1 = VECTOR_DIV32(l_cste_1);
                 TYPE cste_1 = VECTOR_PACK(h_cste_1, l_cste_1);
 
-#if (DEG_2 & 0x01) == 1
-                sign = VECTOR_XOR(sign, misign8);
-#else
-                sign = VECTOR_XOR(sign, misign8b);
-#endif
+                if ((code.DEGREES[1] & 0x01) == 1)
+                    sign = VECTOR_XOR(sign, misign8);
+                else
+                    sign = VECTOR_XOR(sign, misign8b);
 
                 // #pragma unroll(DEG_2)
-                for (int j = 0; j < code.DEG_2; j++)
+                for (int j = 0; j < code.DEGREES[1]; j++)
                 {
                     TYPE vContr = tab_vContr[j];
                     TYPE vAbs = VECTOR_MIN(VECTOR_ABS(vContr), max_msg);

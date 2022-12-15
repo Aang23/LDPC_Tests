@@ -48,7 +48,7 @@ void CDecoder_MS_fixed_layered::decode(
             cn_offset = cn_idx * cn_deg_max;
 
             /* Nasty hack for now */
-            cn_deg = cn_idx == code._K - 1 ? code.DEG_2 : cn_deg_max;
+            cn_deg = cn_idx == code._K - 1 ? code.DEGREES[1] : cn_deg_max;
 
             /* Collect all messages coming from VNs adjacent to current CN */
             for (size_t vn_idx = 0; vn_idx < cn_deg; vn_idx++)

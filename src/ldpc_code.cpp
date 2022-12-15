@@ -10,9 +10,9 @@ LDPC_Code get_CCSDS_8176_1022_Code()
     code._K = 1022;  // Nombre de Checks
     code._M = 32704; // Nombre de Messages
 
-    code.DEG_1 = 32;
+    code.DEGREES = {32};
 
-    code.DEG_1_COMPUTATIONS = 1022;
+    code.DEGREES_COMPUTATIONS = {1022};
 
     code.NB_ITERATIONS = 20;
     code.NB_BITS_VARIABLES = 8; // 8

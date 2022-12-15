@@ -31,14 +31,14 @@ int main(int /*argc*/, char *argv[])
     dec_new3->setMsgRange(-127, 127);
     // dec_new->setSigmaChannel(0.37);
 
-    int simd_factor = 1;
+    int simd_factor = 16;
 
     while (!data_in.eof())
     {
         // Read buffer
         data_in.read((char *)input_buffer, 8176 * simd_factor);
 
-        dec_new3->decode((char *)input_buffer, (char *)output_buffer, 10);
+        dec_new->decode((char *)input_buffer, (char *)output_buffer, 10);
 
         for (int i = 0; i < 8176 * simd_factor; i++)
             output_buffer2[i / 8] = output_buffer2[i / 8] << 1 | (output_buffer[i] > 0);

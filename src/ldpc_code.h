@@ -39,11 +39,13 @@ struct LDPC_Code
 
     int NmoinsK = 0;
 
-    int DEG_1 = 0;
-    int DEG_2 = 0;
+    // int DEG_1 = 0;
+    // int DEG_2 = 0;
+    std::vector<int> DEGREES;
 
-    int DEG_1_COMPUTATIONS = 0;
-    int DEG_2_COMPUTATIONS = 0;
+    // int DEG_1_COMPUTATIONS = 0;
+    // int DEG_2_COMPUTATIONS = 0;
+    std::vector<int> DEGREES_COMPUTATIONS;
 
     int NB_ITERATIONS = 0;
     int NB_BITS_VARIABLES = 0;
@@ -57,6 +59,8 @@ struct LDPC_Code
 
     void setup()
     {
+        NB_DEGRES = DEGREES.size();
+
         NOEUD = _N;
         MESSAGE = _M;
 
