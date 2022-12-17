@@ -6,9 +6,9 @@
 #include <iostream>
 #include <stdint.h>
 
-#include "CDecoder_fixed.h"
+#include "CDecoder.h"
 
-class CDecoder_fixed_layered : public CDecoder_fixed
+class CDecoder_fixed_layered : public CDecoder
 {
 protected:
     size_t cn_deg_max;
@@ -21,6 +21,7 @@ public:
     virtual ~CDecoder_fixed_layered();
     virtual void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations) = 0;
     virtual void decode(float var_nodes[], char Rprime_fix[], int nombre_iterations);
+    int getSIMDSize() { return 1; }
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "CDecoder_fixed_layered.h"
 
-CDecoder_fixed_layered::CDecoder_fixed_layered(LDPC_Code code) : CDecoder_fixed(code)
+CDecoder_fixed_layered::CDecoder_fixed_layered(LDPC_Code code) : CDecoder(code)
 {
     c_to_v_msgs = new int16_t[code.MESSAGE];
     cn_deg_max = code.DEGREES[0]; // TODO

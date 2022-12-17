@@ -28,14 +28,27 @@
 class CDecoder
 {
 protected:
-    float sigB;
-    int nb_iters; // Use early termination criteria
-    const LDPC_Code code;
+  float sigB;
+  int nb_iters; // Use early termination criteria
+  const LDPC_Code code;
+
+  // Fixed codes
+  int vSAT_NEG_MSG;
+  int vSAT_POS_MSG;
+  int vSAT_NEG_VAR;
+  int vSAT_POS_VAR;
 
 public:
-    CDecoder(LDPC_Code code);
-    virtual ~CDecoder();
-    virtual void setSigmaChannel(float _sigB);
-    virtual void setNumberOfIterations(int _value);
-    virtual void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations) = 0;
+  CDecoder(LDPC_Code code);
+  virtual ~CDecoder();
+
+  virtual void setSigmaChannel(float _sigB);
+  virtual void setNumberOfIterations(int _value);
+
+  virtual void setVarRange(int min, int max);
+  virtual void setMsgRange(int min, int max);
+
+  virtual void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations) = 0;
+
+  virtual int getSIMDSize() = 0;
 };

@@ -30,9 +30,9 @@
 #include <smmintrin.h>
 
 // #include "Constantes/constantes_sse.h"
-#include "CDecoder_fixed.h"
+#include "CDecoder.h"
 
-class CDecoder_fixed_SSE : public CDecoder_fixed
+class CDecoder_fixed_SSE : public CDecoder
 {
 protected:
   __m128i *var_nodes;
@@ -42,6 +42,7 @@ public:
   CDecoder_fixed_SSE(LDPC_Code code);
   virtual ~CDecoder_fixed_SSE();
   void decode(float var_nodes[], char Rprime_fix[], int nombre_iterations);
+  int getSIMDSize() { return 16; }
 };
 
 #endif

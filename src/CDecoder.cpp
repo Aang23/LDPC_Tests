@@ -38,3 +38,15 @@ void CDecoder::setNumberOfIterations(int _value)
 {
     nb_iters = _value;
 }
+
+void CDecoder::setVarRange(int min, int max)
+{
+    vSAT_NEG_VAR = min;
+    vSAT_POS_VAR = max;
+}
+
+void CDecoder::setMsgRange(int min, int max)
+{
+    vSAT_NEG_MSG = min;
+    vSAT_POS_MSG = max;
+}

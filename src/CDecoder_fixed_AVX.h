@@ -31,9 +31,9 @@
 #include <smmintrin.h>
 #include <immintrin.h>
 
-#include "CDecoder_fixed.h"
+#include "CDecoder.h"
 
-class CDecoder_fixed_AVX : public CDecoder_fixed
+class CDecoder_fixed_AVX : public CDecoder
 {
 protected:
   __m256i *var_nodes;
@@ -43,6 +43,7 @@ public:
   CDecoder_fixed_AVX(LDPC_Code code);
   virtual ~CDecoder_fixed_AVX();
   void decode(float var_nodes[], char Rprime_fix[], int nombre_iterations);
+  int getSIMDSize() { return 32; }
 };
 
 #endif

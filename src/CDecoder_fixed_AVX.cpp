@@ -21,7 +21,7 @@
 // #ifdef __AVX2__
 #include "CDecoder_fixed_AVX.h"
 
-CDecoder_fixed_AVX::CDecoder_fixed_AVX(LDPC_Code code) : CDecoder_fixed(code)
+CDecoder_fixed_AVX::CDecoder_fixed_AVX(LDPC_Code code) : CDecoder(code)
 {
     var_nodes = new __m256i[code.NOEUD];
     var_mesgs = new __m256i[code.MESSAGE];

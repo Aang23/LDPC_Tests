@@ -20,7 +20,7 @@
 
 #include "CDecoder_fixed_SSE.h"
 
-CDecoder_fixed_SSE::CDecoder_fixed_SSE(LDPC_Code code) : CDecoder_fixed(code)
+CDecoder_fixed_SSE::CDecoder_fixed_SSE(LDPC_Code code) : CDecoder(code)
 {
     var_nodes = new __m128i[code.NOEUD];
     var_mesgs = new __m128i[code.MESSAGE];
