@@ -10,7 +10,3 @@ CDecoder_fixed_layered::~CDecoder_fixed_layered()
 {
     delete c_to_v_msgs;
 }
-
-void CDecoder_fixed_layered::decode(float var_nodes[], char Rprime_fix[], int nombre_iterations)
-{
-}

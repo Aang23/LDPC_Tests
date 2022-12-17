@@ -19,8 +19,9 @@ protected:
 public:
     CDecoder_fixed_layered(LDPC_Code code);
     virtual ~CDecoder_fixed_layered();
+
     virtual void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations) = 0;
-    virtual void decode(float var_nodes[], char Rprime_fix[], int nombre_iterations);
+
     int getSIMDSize() { return 1; }
 };
 

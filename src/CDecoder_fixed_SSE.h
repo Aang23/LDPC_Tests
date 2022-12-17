@@ -41,7 +41,7 @@ protected:
 public:
   CDecoder_fixed_SSE(LDPC_Code code);
   virtual ~CDecoder_fixed_SSE();
-  void decode(float var_nodes[], char Rprime_fix[], int nombre_iterations);
+
   int getSIMDSize() { return 16; }
 };
 

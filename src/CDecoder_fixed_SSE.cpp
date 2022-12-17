@@ -31,10 +31,3 @@ CDecoder_fixed_SSE::~CDecoder_fixed_SSE()
     delete var_nodes;
     delete var_mesgs;
 }
-
-void CDecoder_fixed_SSE::decode(float var_nodes[], char Rprime_fix[], int nombre_iterations)
-{
-    // ON NE FAIT RIEN !
-    // CETTE METHODE ASSURE JUSTE LA COMPATIBILITE ENTRE LES CLASSES MANIPULANT
-    // DES DONNEES FLOTTANTES ET CELLES MANIPULANT DES DONNEES EN VIRGULE FIXE.
-}

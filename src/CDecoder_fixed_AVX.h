@@ -42,7 +42,7 @@ protected:
 public:
   CDecoder_fixed_AVX(LDPC_Code code);
   virtual ~CDecoder_fixed_AVX();
-  void decode(float var_nodes[], char Rprime_fix[], int nombre_iterations);
+
   int getSIMDSize() { return 32; }
 };
 
