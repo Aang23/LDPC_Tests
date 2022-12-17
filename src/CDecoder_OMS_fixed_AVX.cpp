@@ -18,38 +18,31 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "CDecoder_NMS_fixed_SSE.h"
-#include "fixed_SSE_Functionstruc.h"
+// #ifdef __AVX2__
+#include "CDecoder_OMS_fixed_AVX.h"
+#include "transpose_avx.h"
 #include "CTools.h"
 
-#define TYPE __m128i
+#define TYPE __m256i
 
-#define VECTOR_LOAD(ptr) (_mm_load_si128(ptr))
-#define VECTOR_UNCACHED_LOAD(ptr) (_mm_stream_load_si128(ptr))
-#define VECTOR_STORE(ptr, v) (_mm_store_si128(ptr, v))
-#define VECTOR_ADD(a, b) (_mm_adds_epi8(a, b))
-#define VECTOR_SBU(a, b) (_mm_subs_epu8(a, b))
-#define VECTOR_SUB(a, b) (_mm_subs_epi8(a, b))
-#define VECTOR_ABS(a) (_mm_abs_epi8(a))
-#define VECTOR_MAX(a, b) (_mm_max_epi8(a, b))
-#define VECTOR_MIN(a, b) (_mm_min_epi8(a, b))
-#define VECTOR_XOR(a, b) (_mm_xor_si128(a, b))
-#define VECTOR_OR(a, b) (_mm_or_si128(a, b))
-#define VECTOR_AND(a, b) (_mm_and_si128(a, b))
-#define VECTOR_ANDNOT(a, b) (_mm_andnot_si128(a, b))
+#define VECTOR_LOAD(ptr) (_mm256_load_si256(ptr))
+#define VECTOR_UNCACHED_LOAD(ptr) (_mm256_stream_load_si256(ptr))
+#define VECTOR_STORE(ptr, v) (_mm256_store_si256(ptr, v))
+#define VECTOR_ADD(a, b) (_mm256_adds_epi8(a, b))
+#define VECTOR_SBU(a, b) (_mm256_subs_epu8(a, b))
+#define VECTOR_SUB(a, b) (_mm256_subs_epi8(a, b))
+#define VECTOR_ABS(a) (_mm256_abs_epi8(a))
+#define VECTOR_MAX(a, b) (_mm256_max_epi8(a, b))
+#define VECTOR_MIN(a, b) (_mm256_min_epi8(a, b))
+#define VECTOR_XOR(a, b) (_mm256_xor_si256(a, b))
+#define VECTOR_OR(a, b) (_mm256_or_si256(a, b))
+#define VECTOR_AND(a, b) (_mm256_and_si256(a, b))
+#define VECTOR_ANDNOT(a, b) (_mm256_andnot_si256(a, b))
 #define VECTOR_MIN_1(a, min1) (VECTOR_MIN(a, min1))
-#define VECTOR_SIGN(a, b) (_mm_sign_epi8(a, b))
-#define VECTOR_EQUAL(a, b) (_mm_cmpeq_epi8(a, b))
-#define VECTOR_ZERO (_mm_setzero_si128())
-#define VECTOR_SET1(a) (_mm_set1_epi8(a))
-#define VECTOR_SET2(a) (_mm_set1_epi16(a))
-
-#define VECTOR_PACK(hi, lo) (_mm_packs_epi16(lo, hi))
-#define VECTOR_UNPACK_HIGH(a) (_mm_unpackhi_epi8(a, VECTOR_ZERO))
-#define VECTOR_UNPACK_LOW(a) (_mm_unpacklo_epi8(a, VECTOR_ZERO))
-#define VECTOR_MUL(a, b) (_mm_mullo_epi16(a, b))
-#define VECTOR_DIV(a, b) (_mm_div_epi16(a, b))
-#define VECTOR_DIV32(a) (_mm_srli_epi16(a, 5))
+#define VECTOR_SIGN(a, b) (_mm256_sign_epi8(a, b))
+#define VECTOR_EQUAL(a, b) (_mm256_cmpeq_epi8(a, b))
+#define VECTOR_ZERO (_mm256_setzero_si256())
+#define VECTOR_SET1(a) (_mm256_set1_epi8(a))
 
 #define VECTOR_MIN_2(val, old_min1, min2) \
     (VECTOR_MIN(min2, VECTOR_MAX(val, old_min1)))
@@ -84,19 +77,39 @@ inline TYPE VECTOR_GET_SIGN_BIT(TYPE a, TYPE m)
 inline TYPE VECTOR_CMOV(TYPE a, TYPE b, TYPE c, TYPE d)
 {
     TYPE z = VECTOR_EQUAL(a, b);
-    //    return _mm_blendv_epi8( d, c, z );
+    //    return _mm256_blendv_epi8( d, c, z ); SEEMS TO BE LESS EFFIENT :-(
     TYPE g = VECTOR_AND(c, z);
     TYPE h = VECTOR_ANDNOT(z, d);
     return VECTOR_OR(g, h);
 }
 
+inline int VECTOR_XOR_REDUCE(TYPE reg)
+{
+    //    unsigned int *p;
+    //    p = (unsigned int*)&reg;
+    //    return ((p[0] | p[1] | p[2] | p[3] | p[4] | p[5] | p[6] | p[7]) != 0);
+    const TYPE mask = VECTOR_SET1(-128);
+    reg = VECTOR_AND(reg, mask);
+    unsigned int *p;
+    p = (unsigned int *)&reg;
+    return ((p[0] | p[1] | p[2] | p[3] | p[4] | p[5] | p[6] | p[7])) != 0;
+}
+
 #define PETIT 1
 #define MANUAL_PREFETCH 1
 
-CDecoder_NMS_fixed_SSE::CDecoder_NMS_fixed_SSE(LDPC_Code code) : CDecoder_fixed_SSE(code)
+CDecoder_OMS_fixed_AVX::CDecoder_OMS_fixed_AVX(LDPC_Code code) : CDecoder_fixed_AVX(code)
 {
+    nb_exec = 0;
+    nb_saved_iters = 0;
+    offset = -1;
+
+    //    for(int i=0; i<_M; i++){
+    //        p_vn_adr[i] = NULL;
+    //    }
+
 #if PETIT == 1
-    p_vn_adr = new TYPE *[code._M];
+    p_vn_adr = new __m256i *[code._M];
     for (int i = 0; i < code._M; i++)
     {
         p_vn_adr[i] = &var_nodes[code.PosNoeudsVariable[i]];
@@ -104,68 +117,98 @@ CDecoder_NMS_fixed_SSE::CDecoder_NMS_fixed_SSE(LDPC_Code code) : CDecoder_fixed_
 #endif
 }
 
-CDecoder_NMS_fixed_SSE::~CDecoder_NMS_fixed_SSE()
+#define VERBOSE 0
+CDecoder_OMS_fixed_AVX::~CDecoder_OMS_fixed_AVX()
 {
+#if VERBOSE == 1
+    float sav = (float)nb_saved_iters / (float)nb_exec;
+    printf("(DD) # SAVED ITERS / EXEC = %f\n", sav);
+#endif
 #if PETIT == 1
     delete p_vn_adr;
 #endif
 }
 
-void CDecoder_NMS_fixed_SSE::setFactor(int _factor)
+void CDecoder_OMS_fixed_AVX::setOffset(int _offset)
 {
-    factor_1 = _factor;
-    factor_2 = _factor;
+    if (offset == -1)
+    {
+        offset = _offset;
+    }
+    else
+    {
+        printf("(EE) Offset value was already configured (%d)\n", offset);
+        exit(0);
+    }
 }
 
-void CDecoder_NMS_fixed_SSE::decode(char Intrinsic_fix[], char Rprime_fix[], int nombre_iterations)
+void CDecoder_OMS_fixed_AVX::decode(char Intrinsic_fix[], char Rprime_fix[], int nombre_iterations)
 {
     if (vSAT_POS_VAR == 127)
         decode_8bits(Intrinsic_fix, Rprime_fix, nombre_iterations);
     else
         exit(0); // decode_generic(Intrinsic_fix, Rprime_fix, nombre_iterations);
+    nb_exec += 1;
 }
 
-void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[], int nombre_iterations)
+bool CDecoder_OMS_fixed_AVX::decode_8bits(char Intrinsic_fix[], char Rprime_fix[], int nombre_iterations)
 {
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Initilisation des espaces memoire
+    //
     const TYPE zero = VECTOR_ZERO;
     for (int i = 0; i < code.MESSAGE; i++)
     {
         var_mesgs[i] = zero;
     }
+    //
+    ////////////////////////////////////////////////////////////////////////////
 
-    if (code.NOEUD % 16 == 0)
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // ENTRELACEMENT DES DONNEES D'ENTREE POUR POUVOIR EXPLOITER LE MODE SIMD
+    //
+    if (code.NOEUD % 32 == 0)
     {
-        uchar_transpose_sse((TYPE *)Intrinsic_fix, (TYPE *)var_nodes, code.NOEUD);
+        uchar_transpose_avx((TYPE *)Intrinsic_fix, (TYPE *)var_nodes, code.NOEUD);
     }
     else
     {
         char *ptrVar = (char *)var_nodes;
         for (int i = 0; i < code.NOEUD; i++)
         {
-            for (int z = 0; z < 16; z++)
+            for (int z = 0; z < 32; z++)
             {
-                ptrVar[16 * i + z] = Intrinsic_fix[z * code.NOEUD + i];
+                ptrVar[32 * i + z] = Intrinsic_fix[z * code.NOEUD + i];
             }
         }
     }
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    //    unsigned int arret;
 
     while (nombre_iterations--)
     {
         TYPE *p_msg1r = var_mesgs;
         TYPE *p_msg1w = var_mesgs;
 #if PETIT == 1
-        TYPE **p_indice_nod1 = p_vn_adr;
-        TYPE **p_indice_nod2 = p_vn_adr;
+        __m256i **p_indice_nod1 = p_vn_adr;
+        __m256i **p_indice_nod2 = p_vn_adr;
 #else
         const unsigned short *p_indice_nod1 = PosNoeudsVariable;
         const unsigned short *p_indice_nod2 = PosNoeudsVariable;
 #endif
+        //        arret = 0;
 
         const TYPE min_var = VECTOR_SET1(vSAT_NEG_VAR);
         const TYPE max_msg = VECTOR_SET1(vSAT_POS_MSG);
 
         for (int i = 0; i < code.DEGREES_COMPUTATIONS[0]; i++)
         {
+            // IACA_START
+
             TYPE tab_vContr[code.DEGREES[0]];
             TYPE sign = VECTOR_ZERO;
             TYPE min1 = VECTOR_SET1(vSAT_POS_VAR);
@@ -185,7 +228,6 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
             _mm_prefetch((const char *)(&p_msg1r[code.DEGREES[0]]), _MM_HINT_T0);
 #endif
 #endif
-
             // #pragma unroll(DEG_1)
             for (int j = 0; j < code.DEGREES[0]; j++)
             {
@@ -206,24 +248,8 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                 p_indice_nod1 += 1;
                 p_msg1r += 1;
             }
-
-            TYPE norm_1 = VECTOR_SET2(factor_1);
-            TYPE h_min1 = VECTOR_UNPACK_HIGH(min1);
-            TYPE l_min1 = VECTOR_UNPACK_LOW(min1);
-            TYPE h_cste_2 = VECTOR_MUL(h_min1, norm_1);
-            h_cste_2 = VECTOR_DIV32(h_cste_2);
-            TYPE l_cste_2 = VECTOR_MUL(l_min1, norm_1);
-            l_cste_2 = VECTOR_DIV32(l_cste_2);
-            TYPE cste_2 = VECTOR_PACK(h_cste_2, l_cste_2);
-
-            TYPE norm_2 = VECTOR_SET2(factor_2);
-            TYPE h_min2 = VECTOR_UNPACK_HIGH(min2);
-            TYPE l_min2 = VECTOR_UNPACK_LOW(min2);
-            TYPE h_cste_1 = VECTOR_MUL(h_min2, norm_2);
-            h_cste_1 = VECTOR_DIV32(h_cste_1);
-            TYPE l_cste_1 = VECTOR_MUL(l_min2, norm_2);
-            l_cste_1 = VECTOR_DIV32(l_cste_1);
-            TYPE cste_1 = VECTOR_PACK(h_cste_1, l_cste_1);
+            TYPE cste_1 = VECTOR_MIN(VECTOR_SBU(min2, VECTOR_SET1(offset)), max_msg); // ON SATURE DIREECTEMENT AU FORMAT MSG
+            TYPE cste_2 = VECTOR_MIN(VECTOR_SBU(min1, VECTOR_SET1(offset)), max_msg); // ON SATURE DIREECTEMENT AU FORMAT MSG
 
 #if PETIT == 1
 #if MANUAL_PREFETCH == 1
@@ -263,12 +289,11 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
             _mm_prefetch((const char *)(*p_indice_nod2), _MM_HINT_T0);
 #endif
 #endif
+            // IACA_END
+            //             arret = arret || VECTOR_XOR_REDUCE( sign );
         }
 
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
+        //////////////////////////
         for (int degn = 1; degn < code.NB_DEGRES; degn++)
         {
             for (int i = 0; i < code.DEGREES_COMPUTATIONS[degn]; i++)
@@ -281,7 +306,7 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                 const TYPE misign8b = VECTOR_SET1(isign8b);
 
                 TYPE tab_vContr[code.DEGREES[degn]];
-                TYPE sign = VECTOR_ZERO;
+                TYPE sign = zero;
                 TYPE min1 = VECTOR_SET1(vSAT_POS_VAR);
                 TYPE min2 = min1;
 
@@ -306,37 +331,8 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                     p_msg1r += 1;
                 }
 
-#if PETIT == 1
-                for (int j = 0; j < code.DEGREES[degn]; j++)
-                {
-                    _mm_prefetch((const char *)(p_indice_nod1[j]), _MM_HINT_T0);
-                }
-                _mm_prefetch((const char *)(p_indice_nod1[code.DEGREES[degn]]), _MM_HINT_T0);
-#endif
-
-                TYPE norm_1 = VECTOR_SET2(factor_1);
-                TYPE h_min1 = VECTOR_UNPACK_HIGH(min1);
-                TYPE l_min1 = VECTOR_UNPACK_LOW(min1);
-                TYPE h_cste_2 = VECTOR_MUL(h_min1, norm_1);
-                h_cste_2 = VECTOR_DIV32(h_cste_2);
-                TYPE l_cste_2 = VECTOR_MUL(l_min1, norm_1);
-                l_cste_2 = VECTOR_DIV32(l_cste_2);
-                TYPE cste_2 = VECTOR_PACK(h_cste_2, l_cste_2);
-
-                TYPE norm_2 = VECTOR_SET2(factor_2);
-                TYPE h_min2 = VECTOR_UNPACK_HIGH(min2);
-                TYPE l_min2 = VECTOR_UNPACK_LOW(min2);
-                TYPE h_cste_1 = VECTOR_MUL(h_min2, norm_2);
-                h_cste_1 = VECTOR_DIV32(h_cste_1);
-                TYPE l_cste_1 = VECTOR_MUL(l_min2, norm_2);
-                l_cste_1 = VECTOR_DIV32(l_cste_1);
-                TYPE cste_1 = VECTOR_PACK(h_cste_1, l_cste_1);
-
-                /*#if (DEG_2 & 0x01) == 1
-                                    sign = VECTOR_XOR(sign, misign8);
-                #else
-                                    sign = VECTOR_XOR(sign, misign8b);
-                #endif*/
+                TYPE cste_1 = VECTOR_MIN(VECTOR_SBU(min2, VECTOR_SET1(offset)), max_msg); // ON SATURE DIREECTEMENT AU FORMAT MSG
+                TYPE cste_2 = VECTOR_MIN(VECTOR_SBU(min1, VECTOR_SET1(offset)), max_msg); // ON SATURE DIREECTEMENT AU FORMAT MSG
 
                 if ((code.DEGREES[degn] & 0x01) == 1)
                     sign = VECTOR_XOR(sign, misign8);
@@ -361,6 +357,8 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                     p_msg1w += 1;
                     p_indice_nod2 += 1;
                 }
+
+                //            arret = arret || VECTOR_XOR_REDUCE( sign );
             }
         }
     }
@@ -369,21 +367,23 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
     //
     // ON REMET EN FORME LES DONNEES DE SORTIE POUR LA SUITE DU PROCESS
     //
-    if (code.NOEUD % 16 == 0)
+    if (code.NOEUD % 32 == 0)
     {
-        uchar_itranspose_sse((TYPE *)var_nodes, (TYPE *)Rprime_fix, code.NOEUD);
+        uchar_itranspose_avx((TYPE *)var_nodes, (TYPE *)Rprime_fix, code.NOEUD);
     }
     else
     {
         char *ptr = (char *)var_nodes;
         for (int i = 0; i < code.NOEUD; i += 1)
         {
-            for (int j = 0; j < 16; j += 1)
+            for (int j = 0; j < 32; j += 1)
             {
-                Rprime_fix[j * code.NOEUD + i] = (ptr[16 * i + j] > 0);
+                Rprime_fix[j * code.NOEUD + i] = (ptr[32 * i + j] > 0);
             }
         }
     }
     //
     ////////////////////////////////////////////////////////////////////////////
+    return 1;
 }
+// #endif

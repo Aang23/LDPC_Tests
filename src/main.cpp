@@ -1,6 +1,8 @@
 #include <fstream>
 #include "CDecoder_NMS_fixed_SSE.h"
 #include "CDecoder_NMS_fixed_AVX.h"
+#include "CDecoder_OMS_fixed_SSE.h"
+#include "CDecoder_OMS_fixed_AVX.h"
 #include "CDecoder_MS_fixed_layered.h"
 
 int main(int /*argc*/, char *argv[])
@@ -23,6 +25,18 @@ int main(int /*argc*/, char *argv[])
     dec_new2->setFactor(8);
     dec_new2->setVarRange(-127, 127);
     dec_new2->setMsgRange(-127, 127);
+    // dec_new->setSigmaChannel(0.37);
+
+    CDecoder_OMS_fixed_SSE *dec_newo = new CDecoder_OMS_fixed_SSE(get_CCSDS_8176_1022_Code());
+    dec_newo->setOffset(0);
+    dec_newo->setVarRange(-127, 127);
+    dec_newo->setMsgRange(-127, 127);
+    // dec_new->setSigmaChannel(0.37);
+
+    CDecoder_OMS_fixed_AVX *dec_new2o = new CDecoder_OMS_fixed_AVX(get_CCSDS_8176_1022_Code());
+    dec_new2o->setOffset(0);
+    dec_new2o->setVarRange(-127, 127);
+    dec_new2o->setMsgRange(-127, 127);
     // dec_new->setSigmaChannel(0.37);
 
     CDecoder_MS_fixed_layered *dec_new3 = new CDecoder_MS_fixed_layered(get_CCSDS_8176_1022_Code());

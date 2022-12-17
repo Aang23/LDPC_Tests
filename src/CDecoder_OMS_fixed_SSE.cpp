@@ -18,8 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "CDecoder_NMS_fixed_SSE.h"
-#include "fixed_SSE_Functionstruc.h"
+#include "CDecoder_OMS_fixed_SSE.h"
 #include "CTools.h"
 
 #define TYPE __m128i
@@ -42,14 +41,6 @@
 #define VECTOR_EQUAL(a, b) (_mm_cmpeq_epi8(a, b))
 #define VECTOR_ZERO (_mm_setzero_si128())
 #define VECTOR_SET1(a) (_mm_set1_epi8(a))
-#define VECTOR_SET2(a) (_mm_set1_epi16(a))
-
-#define VECTOR_PACK(hi, lo) (_mm_packs_epi16(lo, hi))
-#define VECTOR_UNPACK_HIGH(a) (_mm_unpackhi_epi8(a, VECTOR_ZERO))
-#define VECTOR_UNPACK_LOW(a) (_mm_unpacklo_epi8(a, VECTOR_ZERO))
-#define VECTOR_MUL(a, b) (_mm_mullo_epi16(a, b))
-#define VECTOR_DIV(a, b) (_mm_div_epi16(a, b))
-#define VECTOR_DIV32(a) (_mm_srli_epi16(a, 5))
 
 #define VECTOR_MIN_2(val, old_min1, min2) \
     (VECTOR_MIN(min2, VECTOR_MAX(val, old_min1)))
@@ -93,10 +84,11 @@ inline TYPE VECTOR_CMOV(TYPE a, TYPE b, TYPE c, TYPE d)
 #define PETIT 1
 #define MANUAL_PREFETCH 1
 
-CDecoder_NMS_fixed_SSE::CDecoder_NMS_fixed_SSE(LDPC_Code code) : CDecoder_fixed_SSE(code)
+CDecoder_OMS_fixed_SSE::CDecoder_OMS_fixed_SSE(LDPC_Code code) : CDecoder_fixed_SSE(code)
 {
+    offset = -1;
 #if PETIT == 1
-    p_vn_adr = new TYPE *[code._M];
+    p_vn_adr = new __m128i *[code._M];
     for (int i = 0; i < code._M; i++)
     {
         p_vn_adr[i] = &var_nodes[code.PosNoeudsVariable[i]];
@@ -104,20 +96,27 @@ CDecoder_NMS_fixed_SSE::CDecoder_NMS_fixed_SSE(LDPC_Code code) : CDecoder_fixed_
 #endif
 }
 
-CDecoder_NMS_fixed_SSE::~CDecoder_NMS_fixed_SSE()
+CDecoder_OMS_fixed_SSE::~CDecoder_OMS_fixed_SSE()
 {
 #if PETIT == 1
     delete p_vn_adr;
 #endif
 }
 
-void CDecoder_NMS_fixed_SSE::setFactor(int _factor)
+void CDecoder_OMS_fixed_SSE::setOffset(int _offset)
 {
-    factor_1 = _factor;
-    factor_2 = _factor;
+    if (offset == -1)
+    {
+        offset = _offset;
+    }
+    else
+    {
+        printf("(EE) Offset value was already configured (%d)\n", offset);
+        exit(0);
+    }
 }
 
-void CDecoder_NMS_fixed_SSE::decode(char Intrinsic_fix[], char Rprime_fix[], int nombre_iterations)
+void CDecoder_OMS_fixed_SSE::decode(char Intrinsic_fix[], char Rprime_fix[], int nombre_iterations)
 {
     if (vSAT_POS_VAR == 127)
         decode_8bits(Intrinsic_fix, Rprime_fix, nombre_iterations);
@@ -125,14 +124,24 @@ void CDecoder_NMS_fixed_SSE::decode(char Intrinsic_fix[], char Rprime_fix[], int
         exit(0); // decode_generic(Intrinsic_fix, Rprime_fix, nombre_iterations);
 }
 
-void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[], int nombre_iterations)
+bool CDecoder_OMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[], int nombre_iterations)
 {
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Initilisation des espaces memoire
+    //
     const TYPE zero = VECTOR_ZERO;
     for (int i = 0; i < code.MESSAGE; i++)
     {
         var_mesgs[i] = zero;
     }
+    //
+    ////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // ENTRELACEMENT DES DONNEES D'ENTREE POUR POUVOIR EXPLOITER LE MODE SIMD
+    //
     if (code.NOEUD % 16 == 0)
     {
         uchar_transpose_sse((TYPE *)Intrinsic_fix, (TYPE *)var_nodes, code.NOEUD);
@@ -148,6 +157,10 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
             }
         }
     }
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    //    unsigned int arret = 0;
 
     while (nombre_iterations--)
     {
@@ -161,11 +174,15 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
         const unsigned short *p_indice_nod2 = PosNoeudsVariable;
 #endif
 
+        //        arret = 0;
+
         const TYPE min_var = VECTOR_SET1(vSAT_NEG_VAR);
         const TYPE max_msg = VECTOR_SET1(vSAT_POS_MSG);
 
         for (int i = 0; i < code.DEGREES_COMPUTATIONS[0]; i++)
         {
+            // IACA_START
+
             TYPE tab_vContr[code.DEGREES[0]];
             TYPE sign = VECTOR_ZERO;
             TYPE min1 = VECTOR_SET1(vSAT_POS_VAR);
@@ -207,24 +224,6 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                 p_msg1r += 1;
             }
 
-            TYPE norm_1 = VECTOR_SET2(factor_1);
-            TYPE h_min1 = VECTOR_UNPACK_HIGH(min1);
-            TYPE l_min1 = VECTOR_UNPACK_LOW(min1);
-            TYPE h_cste_2 = VECTOR_MUL(h_min1, norm_1);
-            h_cste_2 = VECTOR_DIV32(h_cste_2);
-            TYPE l_cste_2 = VECTOR_MUL(l_min1, norm_1);
-            l_cste_2 = VECTOR_DIV32(l_cste_2);
-            TYPE cste_2 = VECTOR_PACK(h_cste_2, l_cste_2);
-
-            TYPE norm_2 = VECTOR_SET2(factor_2);
-            TYPE h_min2 = VECTOR_UNPACK_HIGH(min2);
-            TYPE l_min2 = VECTOR_UNPACK_LOW(min2);
-            TYPE h_cste_1 = VECTOR_MUL(h_min2, norm_2);
-            h_cste_1 = VECTOR_DIV32(h_cste_1);
-            TYPE l_cste_1 = VECTOR_MUL(l_min2, norm_2);
-            l_cste_1 = VECTOR_DIV32(l_cste_1);
-            TYPE cste_1 = VECTOR_PACK(h_cste_1, l_cste_1);
-
 #if PETIT == 1
 #if MANUAL_PREFETCH == 1
             for (int j = 0; j < code.DEGREES[0]; j++)
@@ -234,6 +233,9 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
             _mm_prefetch((const char *)(p_indice_nod1[code.DEGREES[0]]), _MM_HINT_T0);
 #endif
 #endif
+
+            TYPE cste_1 = VECTOR_MIN(VECTOR_SBU(min2, VECTOR_SET1(offset)), max_msg); // ON SATURE DIREECTEMENT AU FORMAT MSG
+            TYPE cste_2 = VECTOR_MIN(VECTOR_SBU(min1, VECTOR_SET1(offset)), max_msg); // ON SATURE DIREECTEMENT AU FORMAT MSG
 
             if ((code.DEGREES[0] & 0x01) == 1)
                 sign = VECTOR_XOR(sign, misign8);
@@ -258,16 +260,11 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                 p_msg1w += 1;
                 p_indice_nod2 += 1;
             }
-#if PETIT == 1
-#if MANUAL_PREFETCH == 1
-            _mm_prefetch((const char *)(*p_indice_nod2), _MM_HINT_T0);
-#endif
-#endif
+            //            arret = arret || VECTOR_XOR_REDUCE( sign );
+            // IACA_END
         }
 
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////
 
         for (int degn = 1; degn < code.NB_DEGRES; degn++)
         {
@@ -281,7 +278,7 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                 const TYPE misign8b = VECTOR_SET1(isign8b);
 
                 TYPE tab_vContr[code.DEGREES[degn]];
-                TYPE sign = VECTOR_ZERO;
+                TYPE sign = zero;
                 TYPE min1 = VECTOR_SET1(vSAT_POS_VAR);
                 TYPE min2 = min1;
 
@@ -297,7 +294,7 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                     TYPE vContr = VECTOR_SUB_AND_SATURATE_VAR_8bits(vNoeud, vMessg, min_var);
                     TYPE cSign = VECTOR_GET_SIGN_BIT(vContr, msign8);
                     sign = VECTOR_XOR(sign, cSign);
-                    TYPE vAbs = VECTOR_MIN(VECTOR_ABS(vContr), max_msg);
+                    TYPE vAbs = VECTOR_ABS(VECTOR_MIN(vContr, max_msg));
                     tab_vContr[j] = vContr;
                     TYPE vTemp = min1;
                     min1 = VECTOR_MIN_1(vAbs, min1);
@@ -306,37 +303,8 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                     p_msg1r += 1;
                 }
 
-#if PETIT == 1
-                for (int j = 0; j < code.DEGREES[degn]; j++)
-                {
-                    _mm_prefetch((const char *)(p_indice_nod1[j]), _MM_HINT_T0);
-                }
-                _mm_prefetch((const char *)(p_indice_nod1[code.DEGREES[degn]]), _MM_HINT_T0);
-#endif
-
-                TYPE norm_1 = VECTOR_SET2(factor_1);
-                TYPE h_min1 = VECTOR_UNPACK_HIGH(min1);
-                TYPE l_min1 = VECTOR_UNPACK_LOW(min1);
-                TYPE h_cste_2 = VECTOR_MUL(h_min1, norm_1);
-                h_cste_2 = VECTOR_DIV32(h_cste_2);
-                TYPE l_cste_2 = VECTOR_MUL(l_min1, norm_1);
-                l_cste_2 = VECTOR_DIV32(l_cste_2);
-                TYPE cste_2 = VECTOR_PACK(h_cste_2, l_cste_2);
-
-                TYPE norm_2 = VECTOR_SET2(factor_2);
-                TYPE h_min2 = VECTOR_UNPACK_HIGH(min2);
-                TYPE l_min2 = VECTOR_UNPACK_LOW(min2);
-                TYPE h_cste_1 = VECTOR_MUL(h_min2, norm_2);
-                h_cste_1 = VECTOR_DIV32(h_cste_1);
-                TYPE l_cste_1 = VECTOR_MUL(l_min2, norm_2);
-                l_cste_1 = VECTOR_DIV32(l_cste_1);
-                TYPE cste_1 = VECTOR_PACK(h_cste_1, l_cste_1);
-
-                /*#if (DEG_2 & 0x01) == 1
-                                    sign = VECTOR_XOR(sign, misign8);
-                #else
-                                    sign = VECTOR_XOR(sign, misign8b);
-                #endif*/
+                TYPE cste_1 = VECTOR_MIN(VECTOR_SBU(min2, VECTOR_SET1(offset)), max_msg); // ON SATURE DIREECTEMENT AU FORMAT MSG
+                TYPE cste_2 = VECTOR_MIN(VECTOR_SBU(min1, VECTOR_SET1(offset)), max_msg); // ON SATURE DIREECTEMENT AU FORMAT MSG
 
                 if ((code.DEGREES[degn] & 0x01) == 1)
                     sign = VECTOR_XOR(sign, misign8);
@@ -347,7 +315,7 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                 for (int j = 0; j < code.DEGREES[degn]; j++)
                 {
                     TYPE vContr = tab_vContr[j];
-                    TYPE vAbs = VECTOR_MIN(VECTOR_ABS(vContr), max_msg);
+                    TYPE vAbs = VECTOR_ABS(VECTOR_MIN(vContr, max_msg));
                     TYPE vRes = VECTOR_CMOV(vAbs, min1, cste_1, cste_2);
                     TYPE vSig = VECTOR_XOR(sign, VECTOR_GET_SIGN_BIT(vContr, msign8));
                     TYPE v2St = VECTOR_invSIGN2(vRes, vSig);
@@ -361,8 +329,18 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
                     p_msg1w += 1;
                     p_indice_nod2 += 1;
                 }
+
+                //            arret = arret || VECTOR_XOR_REDUCE( sign );
             }
         }
+
+        /////////////////////////////////////////////////////////////////////////////////
+        //
+        // GESTION DU CRITERE D'ARRET
+        //
+        //        if( (arret == 0) && (fast_stop == 1) ){
+        //            break;
+        //        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -386,4 +364,6 @@ void CDecoder_NMS_fixed_SSE::decode_8bits(char Intrinsic_fix[], char Rprime_fix[
     }
     //
     ////////////////////////////////////////////////////////////////////////////
+
+    return 1;
 }
