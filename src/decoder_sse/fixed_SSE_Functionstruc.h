@@ -23,6 +23,8 @@
 #define llr_from_input(v) ((2.0 * v) / (sigB * sigB))
 
 #include <xmmintrin.h>
+#include <tmmintrin.h>
+#include <smmintrin.h>
 
 #define SSE_8S_LOAD(ptr) (_mm_load_si128(ptr))
 #define SSE_8S_UNCACHED_LOAD(ptr) (_mm_stream_load_si128(ptr))

@@ -35,10 +35,10 @@ namespace libldpc
         const LDPC_Code code;
 
         // Fixed codes
-        int vSAT_NEG_MSG;
-        int vSAT_POS_MSG;
-        int vSAT_NEG_VAR;
-        int vSAT_POS_VAR;
+        int vSAT_NEG_MSG = -127;
+        int vSAT_POS_MSG = 127;
+        int vSAT_NEG_VAR = -127;
+        int vSAT_POS_VAR = 127;
 
     public:
         LDPCDecoder(LDPC_Code code);
@@ -54,4 +54,25 @@ namespace libldpc
 
         virtual int getSIMDSize() = 0;
     };
+
+    enum ldpc_decoder_type_t
+    {
+        TYPE_MS,
+        TYPE_NMS,
+        TYPE_OMS,
+    };
+
+    enum ldpc_decoder_simd_t
+    {
+        SIMD_NONE,
+        SIMD_SSE,
+        SIMD_AVX,
+    };
+
+    LDPCDecoder *create_ldpc_decoder(LDPC_Code code,
+                                     ldpc_decoder_type_t type,
+                                     ldpc_decoder_simd_t simd,
+                                     int meta = 0);
+
+    void destroy_ldpc_decoder(LDPCDecoder *d);
 }
