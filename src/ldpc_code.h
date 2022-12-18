@@ -75,3 +75,4 @@ struct LDPC_Code
 
 LDPC_Code get_CCSDS_8176_1022_Code();
 LDPC_Code get_DVBS2_r910_Code();
+LDPC_Code get_ldpc_code_alist(std::string alist_path);
