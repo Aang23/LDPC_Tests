@@ -2,10 +2,10 @@
 #include <sstream>
 
 // #include "Tools/Exception/exception.hpp"
-#include "Matrix.hpp"
+#include "matrix.hpp"
 
-using namespace aff3ct;
-using namespace aff3ct::tools;
+using namespace libldpc;
+using namespace libldpc::tools;
 
 Matrix ::Matrix(const size_t n_rows, const size_t n_cols)
 	: n_rows(n_rows),

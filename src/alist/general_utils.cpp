@@ -4,14 +4,13 @@
 #include <sstream>
 #include <cstdint>
 #include <algorithm>
-
 #include <iomanip>
 
 // #include "Tools/Math/utils.h"
 // #include "Tools/Exception/exception.hpp"
 #include "general_utils.h"
 
-std::vector<std::string> aff3ct::tools::split(const std::string &s, char delim)
+std::vector<std::string> libldpc::tools::split(const std::string &s, char delim)
 {
 	std::stringstream ss(s);
 	std::string item;
@@ -22,7 +21,7 @@ std::vector<std::string> aff3ct::tools::split(const std::string &s, char delim)
 	return elems;
 }
 
-std::vector<std::string> aff3ct::tools::split(const std::string &s)
+std::vector<std::string> libldpc::tools::split(const std::string &s)
 {
 	std::string buf;				 // have a buffer string
 	std::stringstream ss(s);		 // insert the string into a stream
@@ -34,7 +33,7 @@ std::vector<std::string> aff3ct::tools::split(const std::string &s)
 	return tokens;
 }
 
-void aff3ct::tools::getline(std::istream &file, std::string &line)
+void libldpc::tools::getline(std::istream &file, std::string &line)
 {
 	if (file.eof() || file.fail() || file.bad())
 		throw std::runtime_error("Something went wrong when getting a new line."); // runtime_error(__FILE__, __LINE__, __func__, "Something went wrong when getting a new line.");
@@ -45,7 +44,7 @@ void aff3ct::tools::getline(std::istream &file, std::string &line)
 }
 
 template <typename R>
-R aff3ct::tools::sigma_to_esn0(const R sigma, const int upsample_factor)
+R libldpc::tools::sigma_to_esn0(const R sigma, const int upsample_factor)
 {
 	if (upsample_factor <= 0)
 	{
@@ -74,7 +73,7 @@ R aff3ct::tools::sigma_to_esn0(const R sigma, const int upsample_factor)
 }
 
 template <typename R>
-R aff3ct::tools::esn0_to_sigma(const R esn0, const int upsample_factor)
+R libldpc::tools::esn0_to_sigma(const R esn0, const int upsample_factor)
 {
 	if (upsample_factor <= 0)
 	{
@@ -88,7 +87,7 @@ R aff3ct::tools::esn0_to_sigma(const R esn0, const int upsample_factor)
 }
 
 template <typename R>
-R aff3ct::tools::esn0_to_ebn0(const R esn0, const R bit_rate, const int bps)
+R libldpc::tools::esn0_to_ebn0(const R esn0, const R bit_rate, const int bps)
 {
 	if (bit_rate <= (R)0 || bit_rate > (R)1)
 	{
@@ -109,7 +108,7 @@ R aff3ct::tools::esn0_to_ebn0(const R esn0, const R bit_rate, const int bps)
 }
 
 template <typename R>
-R aff3ct::tools::ebn0_to_esn0(const R ebn0, const R bit_rate, const int bps)
+R libldpc::tools::ebn0_to_esn0(const R ebn0, const R bit_rate, const int bps)
 {
 	if (bit_rate <= (R)0 || bit_rate > (R)1)
 	{
@@ -130,7 +129,7 @@ R aff3ct::tools::ebn0_to_esn0(const R ebn0, const R bit_rate, const int bps)
 }
 
 template <typename R>
-std::vector<R> aff3ct::tools::generate_range(const std::vector<std::vector<R>> &range_description, const R default_step)
+std::vector<R> libldpc::tools::generate_range(const std::vector<std::vector<R>> &range_description, const R default_step)
 {
 	const R float_precision = 1e7;
 
@@ -179,7 +178,7 @@ std::vector<R> aff3ct::tools::generate_range(const std::vector<std::vector<R>> &
 }
 
 template <typename T>
-void aff3ct::tools::check_LUT(const std::vector<T> &LUT, const std::string &LUT_name, const size_t LUT_size)
+void libldpc::tools::check_LUT(const std::vector<T> &LUT, const std::string &LUT_name, const size_t LUT_size)
 {
 	std::map<T, unsigned> count_map;
 
@@ -205,7 +204,7 @@ void aff3ct::tools::check_LUT(const std::vector<T> &LUT, const std::string &LUT_
 	}
 }
 
-size_t aff3ct::tools::compute_bytes(const size_t n_elmts, const std::type_index type)
+size_t libldpc::tools::compute_bytes(const size_t n_elmts, const std::type_index type)
 {
 	if (type == typeid(int8_t))
 		return n_elmts * sizeof(int8_t);
@@ -227,8 +226,8 @@ size_t aff3ct::tools::compute_bytes(const size_t n_elmts, const std::type_index 
 	}
 }
 
-std::vector<size_t> aff3ct::tools::compute_bytes(const std::vector<size_t> &n_elmts,
-												 const std::vector<std::type_index> &type)
+std::vector<size_t> libldpc::tools::compute_bytes(const std::vector<size_t> &n_elmts,
+												  const std::vector<std::type_index> &type)
 {
 	if (n_elmts.size() != type.size())
 	{
@@ -240,23 +239,23 @@ std::vector<size_t> aff3ct::tools::compute_bytes(const std::vector<size_t> &n_el
 
 	std::vector<size_t> bytes(n_elmts.size());
 	for (size_t i = 0; i < n_elmts.size(); i++)
-		bytes[i] = aff3ct::tools::compute_bytes(n_elmts[i], type[i]);
+		bytes[i] = libldpc::tools::compute_bytes(n_elmts[i], type[i]);
 	return bytes;
 }
 
 // ==================================================================================== explicit template instantiation
-template float aff3ct::tools::sigma_to_esn0<float>(const float, const int);
-template double aff3ct::tools::sigma_to_esn0<double>(const double, const int);
-template float aff3ct::tools::esn0_to_sigma<float>(const float, const int);
-template double aff3ct::tools::esn0_to_sigma<double>(const double, const int);
-template float aff3ct::tools::esn0_to_ebn0<float>(const float, const float, const int);
-template double aff3ct::tools::esn0_to_ebn0<double>(const double, const double, const int);
-template float aff3ct::tools::ebn0_to_esn0<float>(const float, const float, const int);
-template double aff3ct::tools::ebn0_to_esn0<double>(const double, const double, const int);
-template std::vector<float> aff3ct::tools::generate_range(const std::vector<std::vector<float>> &, const float);
-template std::vector<double> aff3ct::tools::generate_range(const std::vector<std::vector<double>> &, const double);
-template void aff3ct::tools::check_LUT<uint8_t>(const std::vector<uint8_t> &, const std::string &, const size_t);
-template void aff3ct::tools::check_LUT<uint16_t>(const std::vector<uint16_t> &, const std::string &, const size_t);
-template void aff3ct::tools::check_LUT<uint32_t>(const std::vector<uint32_t> &, const std::string &, const size_t);
-template void aff3ct::tools::check_LUT<uint64_t>(const std::vector<uint64_t> &, const std::string &, const size_t);
+template float libldpc::tools::sigma_to_esn0<float>(const float, const int);
+template double libldpc::tools::sigma_to_esn0<double>(const double, const int);
+template float libldpc::tools::esn0_to_sigma<float>(const float, const int);
+template double libldpc::tools::esn0_to_sigma<double>(const double, const int);
+template float libldpc::tools::esn0_to_ebn0<float>(const float, const float, const int);
+template double libldpc::tools::esn0_to_ebn0<double>(const double, const double, const int);
+template float libldpc::tools::ebn0_to_esn0<float>(const float, const float, const int);
+template double libldpc::tools::ebn0_to_esn0<double>(const double, const double, const int);
+template std::vector<float> libldpc::tools::generate_range(const std::vector<std::vector<float>> &, const float);
+template std::vector<double> libldpc::tools::generate_range(const std::vector<std::vector<double>> &, const double);
+template void libldpc::tools::check_LUT<uint8_t>(const std::vector<uint8_t> &, const std::string &, const size_t);
+template void libldpc::tools::check_LUT<uint16_t>(const std::vector<uint16_t> &, const std::string &, const size_t);
+template void libldpc::tools::check_LUT<uint32_t>(const std::vector<uint32_t> &, const std::string &, const size_t);
+template void libldpc::tools::check_LUT<uint64_t>(const std::vector<uint64_t> &, const std::string &, const size_t);
 // ==================================================================================== explicit template instantiation

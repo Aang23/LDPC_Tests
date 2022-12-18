@@ -4,10 +4,10 @@
 #include <ios>
 
 // #include "Tools/Exception/exception.hpp"
-#include "Sparse_matrix.hpp"
+#include "sparse_matrix.hpp"
 
-using namespace aff3ct;
-using namespace aff3ct::tools;
+using namespace libldpc;
+using namespace libldpc::tools;
 
 Sparse_matrix ::Sparse_matrix(const size_t n_rows, const size_t n_cols)
 	: Matrix(n_rows, n_cols),

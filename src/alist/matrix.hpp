@@ -2,13 +2,12 @@
  * \file
  * \brief Class tools::Matrix.
  */
-#ifndef MATRIX_HPP_
-#define MATRIX_HPP_
+#pragma once
 
 #include <iostream>
 #include <string>
 
-namespace aff3ct
+namespace libldpc
 {
 	namespace tools
 	{
@@ -130,9 +129,9 @@ namespace aff3ct
 	}
 }
 
-std::ostream &operator<<(std::ostream &os, const aff3ct::tools::Matrix &sm);
+std::ostream &operator<<(std::ostream &os, const libldpc::tools::Matrix &sm);
 
-namespace aff3ct
+namespace libldpc
 {
 	namespace tools
 	{
@@ -167,5 +166,3 @@ namespace aff3ct
 		}
 	}
 }
-
-#endif /* MATRIX_HPP_ */

@@ -18,26 +18,19 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLASS_CDecoder_OMS_
-#define CLASS_CDecoder_OMS_
+#include "decoder_sse.h"
 
-#include "CDecoder_fixed_SSE.h"
-
-class CDecoder_OMS_fixed_SSE : public CDecoder_fixed_SSE
+namespace libldpc
 {
-private:
-    int offset;
-    __m128i **p_vn_adr;
+    LDPCDecoderSSE::LDPCDecoderSSE(LDPC_Code code) : LDPCDecoder(code)
+    {
+        var_nodes = new __m128i[code.NOEUD];
+        var_mesgs = new __m128i[code.MESSAGE];
+    }
 
-public:
-    CDecoder_OMS_fixed_SSE(LDPC_Code code);
-    ~CDecoder_OMS_fixed_SSE();
-    void setOffset(int _offset);
-    void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations);
-
-public:
-    bool decode_8bits(char var_nodes[], char Rprime_fix[], int nombre_iterations);
-    // bool decode_generic(char var_nodes[], char Rprime_fix[], int nombre_iterations);
-};
-
-#endif
+    LDPCDecoderSSE::~LDPCDecoderSSE()
+    {
+        delete var_nodes;
+        delete var_mesgs;
+    }
+}

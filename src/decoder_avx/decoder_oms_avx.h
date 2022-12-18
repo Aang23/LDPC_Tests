@@ -1,5 +1,3 @@
-#pragma once
-
 /**
   Copyright (c) 2012-2015 "Bordeaux INP, Bertrand LE GAL"
   [http://legal.vvv.enseirb-matmeca.fr]
@@ -20,35 +18,30 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include "ldpc_code.h"
+#pragma once
 
-class CDecoder
+// #ifdef __AVX2__
+
+#include "decoder_avx.h"
+
+namespace libldpc
 {
-protected:
-  float sigB;
-  int nb_iters; // Use early termination criteria
-  const LDPC_Code code;
+    class LDPCDecoder_OMS_AVX : public LDPCDecoderAVX
+    {
+    private:
+        int offset;
+        int nb_exec;
+        int nb_saved_iters;
 
-  // Fixed codes
-  int vSAT_NEG_MSG;
-  int vSAT_POS_MSG;
-  int vSAT_NEG_VAR;
-  int vSAT_POS_VAR;
+        __m256i **p_vn_adr;
 
-public:
-  CDecoder(LDPC_Code code);
-  virtual ~CDecoder();
+    public:
+        LDPCDecoder_OMS_AVX(LDPC_Code code);
+        ~LDPCDecoder_OMS_AVX();
+        void setOffset(int _offset);
+        void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations);
 
-  virtual void setSigmaChannel(float _sigB);
-  virtual void setNumberOfIterations(int _value);
-
-  virtual void setVarRange(int min, int max);
-  virtual void setMsgRange(int min, int max);
-
-  virtual void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations) = 0;
-
-  virtual int getSIMDSize() = 0;
-};
+        bool decode_8bits(char var_nodes[], char Rprime_fix[], int nombre_iterations);
+    };
+}
+// #endif

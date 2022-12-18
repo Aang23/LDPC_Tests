@@ -2,17 +2,16 @@
  * \file
  * \brief Class tools::Sparse_matrix.
  */
-#ifndef SPARSE_MATRIX_HPP_
-#define SPARSE_MATRIX_HPP_
+#pragma once
 
 #include <iostream>
 #include <cstddef>
 #include <cstdint>
 #include <vector>
 
-#include "Matrix.hpp"
+#include "matrix.hpp"
 
-namespace aff3ct
+namespace libldpc
 {
 	namespace tools
 	{
@@ -114,7 +113,7 @@ namespace aff3ct
 	}
 }
 
-namespace aff3ct
+namespace libldpc
 {
 	namespace tools
 	{
@@ -144,5 +143,3 @@ namespace aff3ct
 		}
 	}
 }
-
-#endif /* SPARSE_MATRIX_HPP_ */

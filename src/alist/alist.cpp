@@ -2,16 +2,15 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
-
 #include <iomanip>
 
 // #include "exception.hpp"
 #include "general_utils.h"
 // #include "Tools/Display/rang_format/rang_format.h"
 
-#include "AList.hpp"
+#include "alist.hpp"
 
-using namespace aff3ct::tools;
+using namespace libldpc::tools;
 
 Sparse_matrix AList ::read(std::istream &stream)
 {

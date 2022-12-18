@@ -18,18 +18,38 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #ifdef __AVX2__
-#include "CDecoder_fixed_AVX.h"
+#include "ldpc_decoder.h"
 
-CDecoder_fixed_AVX::CDecoder_fixed_AVX(LDPC_Code code) : CDecoder(code)
+namespace libldpc
 {
-    var_nodes = new __m256i[code.NOEUD];
-    var_mesgs = new __m256i[code.MESSAGE];
-}
+    LDPCDecoder::LDPCDecoder(LDPC_Code code) : code(code)
+    {
+        nb_iters = 0;
+    }
 
-CDecoder_fixed_AVX::~CDecoder_fixed_AVX()
-{
-    delete var_nodes;
-    delete var_mesgs;
+    LDPCDecoder::~LDPCDecoder()
+    {
+    }
+
+    void LDPCDecoder::setSigmaChannel(float _SigB)
+    {
+        sigB = _SigB;
+    }
+
+    void LDPCDecoder::setNumberOfIterations(int _value)
+    {
+        nb_iters = _value;
+    }
+
+    void LDPCDecoder::setVarRange(int min, int max)
+    {
+        vSAT_NEG_VAR = min;
+        vSAT_POS_VAR = max;
+    }
+
+    void LDPCDecoder::setMsgRange(int min, int max)
+    {
+        vSAT_NEG_MSG = min;
+        vSAT_POS_MSG = max;
+    }
 }
-// #endif

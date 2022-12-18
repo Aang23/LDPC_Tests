@@ -2,8 +2,7 @@
  * \file
  * \brief Functions for general operations.
  */
-#ifndef GENERAL_UTILS_H_
-#define GENERAL_UTILS_H_
+#pragma once
 
 #include <cstddef>
 #include <vector>
@@ -12,7 +11,7 @@
 #include <typeindex>
 #include <memory>
 
-namespace aff3ct
+namespace libldpc
 {
     namespace tools
     {
@@ -113,11 +112,10 @@ namespace aff3ct
     }
 }
 
-namespace aff3ct
+namespace libldpc
 {
     namespace tools
     {
-
         template <typename BidirectionalIterator, typename T>
         BidirectionalIterator get_closest(BidirectionalIterator first, BidirectionalIterator last, const T &value)
         { // https://stackoverflow.com/a/701141/7219905
@@ -282,5 +280,3 @@ namespace aff3ct
 
     }
 }
-
-#endif /* GENERAL_UTILS_H_*/

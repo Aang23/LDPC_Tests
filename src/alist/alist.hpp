@@ -2,15 +2,14 @@
  * \file
  * \brief Struct tools::AList.
  */
-#ifndef ALIST_HPP_
-#define ALIST_HPP_
+#pragma once
 
 #include <iostream>
 #include <vector>
 
-#include "Sparse_matrix.hpp"
+#include "sparse_matrix.hpp"
 
-namespace aff3ct
+namespace libldpc
 {
 	namespace tools
 	{
@@ -38,5 +37,3 @@ namespace aff3ct
 		};
 	}
 }
-
-#endif /* ALIST_HPP_ */

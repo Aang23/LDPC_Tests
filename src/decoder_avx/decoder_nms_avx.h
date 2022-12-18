@@ -18,31 +18,29 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __CDecoder_fixed_SSE__
-#define __CDecoder_fixed_SSE__
+#pragma once
 
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
+// #ifdef __AVX2__
 
-#include <xmmintrin.h>
-#include <tmmintrin.h>
-#include <smmintrin.h>
+#include "decoder_avx.h"
 
-// #include "Constantes/constantes_sse.h"
-#include "CDecoder.h"
-
-class CDecoder_fixed_SSE : public CDecoder
+namespace libldpc
 {
-protected:
-  __m128i *var_nodes;
-  __m128i *var_mesgs;
+    class LDPCDecoder_NMS_AVX : public LDPCDecoderAVX
+    {
+    protected:
+        int factor_1;
+        int factor_2;
+        __m256i **p_vn_adr;
 
-public:
-  CDecoder_fixed_SSE(LDPC_Code code);
-  virtual ~CDecoder_fixed_SSE();
+    public:
+        LDPCDecoder_NMS_AVX(LDPC_Code code);
+        ~LDPCDecoder_NMS_AVX();
+        void setFactor(int _factor);
+        void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations);
 
-  int getSIMDSize() { return 16; }
-};
-
-#endif
+    public:
+        bool decode_8bits(char var_nodes[], char Rprime_fix[], int nombre_iterations);
+    };
+}
+// #endif

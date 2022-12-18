@@ -18,35 +18,35 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "./CDecoder.h"
+#pragma once
 
-CDecoder::CDecoder(LDPC_Code code) : code(code)
+// #ifdef __AVX2__
+
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <xmmintrin.h>
+#include <tmmintrin.h>
+#include <smmintrin.h>
+#include <immintrin.h>
+
+#include "ldpc_decoder.h"
+
+namespace libldpc
 {
-    nb_iters = 0;
+    class LDPCDecoderAVX : public LDPCDecoder
+    {
+    protected:
+        __m256i *var_nodes;
+        __m256i *var_mesgs;
+
+    public:
+        LDPCDecoderAVX(LDPC_Code code);
+        virtual ~LDPCDecoderAVX();
+
+        int getSIMDSize() { return 32; }
+    };
 }
 
-CDecoder::~CDecoder()
-{
-}
-
-void CDecoder::setSigmaChannel(float _SigB)
-{
-    sigB = _SigB;
-}
-
-void CDecoder::setNumberOfIterations(int _value)
-{
-    nb_iters = _value;
-}
-
-void CDecoder::setVarRange(int min, int max)
-{
-    vSAT_NEG_VAR = min;
-    vSAT_POS_VAR = max;
-}
-
-void CDecoder::setMsgRange(int min, int max)
-{
-    vSAT_NEG_MSG = min;
-    vSAT_POS_MSG = max;
-}
+// #endif

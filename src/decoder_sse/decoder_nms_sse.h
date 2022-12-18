@@ -18,26 +18,26 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLASS_CDecoder_NMS_
-#define CLASS_CDecoder_NMS_
+#pragma once
 
-#include "CDecoder_fixed_SSE.h"
+#include "decoder_sse.h"
 
-class CDecoder_NMS_fixed_SSE : public CDecoder_fixed_SSE
+namespace libldpc
 {
-protected:
-    int factor_1;
-    int factor_2;
-    __m128i **p_vn_adr;
+    class LDPCDecoder_NMS_SSE : public LDPCDecoderSSE
+    {
+    protected:
+        int factor_1;
+        int factor_2;
+        __m128i **p_vn_adr;
 
-public:
-    CDecoder_NMS_fixed_SSE(LDPC_Code code);
-    ~CDecoder_NMS_fixed_SSE();
-    void setFactor(int _factor);
-    void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations);
+    public:
+        LDPCDecoder_NMS_SSE(LDPC_Code code);
+        ~LDPCDecoder_NMS_SSE();
+        void setFactor(int _factor);
+        void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations);
 
-private:
-    void decode_8bits(char var_nodes[], char Rprime_fix[], int nombre_iterations);
-};
-
-#endif
+    private:
+        void decode_8bits(char var_nodes[], char Rprime_fix[], int nombre_iterations);
+    };
+}

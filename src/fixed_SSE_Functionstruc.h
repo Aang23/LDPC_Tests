@@ -18,8 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __SSE_Functions__
-#define __SSE_Functions__
+#pragma once
 
 #define llr_from_input(v) ((2.0 * v) / (sigB * sigB))
 
@@ -40,34 +39,36 @@
 #define SSE_8S_DIV(a, b) (_mm_div_epi16(a, b))
 #define SSE_8S_DIV32(a) (_mm_srli_epi16(a, 5))
 
-const unsigned short sign_value = 0x8000;
-const __m128i mask_sign = _mm_set_epi16(sign_value, sign_value, sign_value, sign_value, sign_value, sign_value, sign_value, sign_value);
-inline __m128i SSE_8S_SIGN(__m128i a)
+namespace libldpc
 {
-    __m128i b = _mm_and_si128(a, mask_sign); //  Invert all the bits
-    __m128i f = _mm_xor_si128(b, mask_sign); //  Invert all the bits
-    return f;
-}
+    const unsigned short sign_value = 0x8000;
+    const __m128i mask_sign = _mm_set_epi16(sign_value, sign_value, sign_value, sign_value, sign_value, sign_value, sign_value, sign_value);
+    inline __m128i SSE_8S_SIGN(__m128i a)
+    {
+        __m128i b = _mm_and_si128(a, mask_sign); //  Invert all the bits
+        __m128i f = _mm_xor_si128(b, mask_sign); //  Invert all the bits
+        return f;
+    }
 
-const unsigned short isign_value = 0xC000;
-const __m128i mask_isign = _mm_set_epi16(isign_value, isign_value, isign_value, isign_value, isign_value, isign_value, isign_value, isign_value);
-inline __m128i SSE_8S_invSIGN(__m128i val, __m128i sig)
-{
-    __m128i x = _mm_xor_si128(sig, mask_isign); // PLUS LA VALEUR 64 CAR L'INSTRUCTION _mm_sign_epi16 A
-    __m128i r = _mm_sign_epi16(val, x);         // PAS NULLE !!!
-    return r;
-}
+    const unsigned short isign_value = 0xC000;
+    const __m128i mask_isign = _mm_set_epi16(isign_value, isign_value, isign_value, isign_value, isign_value, isign_value, isign_value, isign_value);
+    inline __m128i SSE_8S_invSIGN(__m128i val, __m128i sig)
+    {
+        __m128i x = _mm_xor_si128(sig, mask_isign); // PLUS LA VALEUR 64 CAR L'INSTRUCTION _mm_sign_epi16 A
+        __m128i r = _mm_sign_epi16(val, x);         // PAS NULLE !!!
+        return r;
+    }
 
-// inline __m128i SSE_8S_MIN_1( __m128i a, __m128i min1){
-//     return _mm_min_epi16(a, min1);
-// }
+    // inline __m128i SSE_8S_MIN_1( __m128i a, __m128i min1){
+    //     return _mm_min_epi16(a, min1);
+    // }
 
 #define SSE_8S_MIN_1(a, min1) \
     (SSE_8S_MIN(a, min1))
 
-// inline __m128i SSE_8S_MIN_2( __m128i val, __m128i old_min1, __m128i min2){
-//     return _mm_min_epi16(min2, _mm_max_epi16(val, old_min1));
-// }
+    // inline __m128i SSE_8S_MIN_2( __m128i val, __m128i old_min1, __m128i min2){
+    //     return _mm_min_epi16(min2, _mm_max_epi16(val, old_min1));
+    // }
 
 #define SSE_8S_MIN_2(val, old_min1, min2) \
     (SSE_8S_MIN(min2, SSE_8S_MAX(val, old_min1)))
@@ -102,28 +103,27 @@ inline __m128i SSE_8S_ADD_SATURATE_VAR(__m128i a, __m128i b){
 #define SSE_8S_SUB_AND_SATURATE_VAR(a, b, max, min) SSE_8S_SATURATE(SSE_8S_SUB(a, b), max, min)
 #define SSE_8S_ADD_AND_SATURATE_VAR(a, b, max, min) SSE_8S_SATURATE(SSE_8S_ADD(a, b), max, min)
 
-const unsigned short value = 0xFFFF;
-const __m128i nn = _mm_set_epi16(value, value, value, value, value, value, value, value);
-inline __m128i SSE_8S_CMOV(__m128i a, __m128i b, __m128i v1, __m128i v2)
-{
-    __m128i m1 = _mm_cmpeq_epi16(a, b); // EQUALS
-    __m128i m2 = _mm_xor_si128(m1, nn); // NOT EQUALS
-    __m128i m3 = _mm_and_si128(m1, v1);
-    __m128i m4 = _mm_and_si128(m2, v2);
-    return _mm_or_si128(m3, m4);
-}
+    const unsigned short value = 0xFFFF;
+    const __m128i nn = _mm_set_epi16(value, value, value, value, value, value, value, value);
+    inline __m128i SSE_8S_CMOV(__m128i a, __m128i b, __m128i v1, __m128i v2)
+    {
+        __m128i m1 = _mm_cmpeq_epi16(a, b); // EQUALS
+        __m128i m2 = _mm_xor_si128(m1, nn); // NOT EQUALS
+        __m128i m3 = _mm_and_si128(m1, v1);
+        __m128i m4 = _mm_and_si128(m2, v2);
+        return _mm_or_si128(m3, m4);
+    }
 
-inline __m128i SSE_8S_XOR(__m128i a, __m128i b)
-{
-    __m128i c = _mm_xor_si128(a, b); //  Invert all the bits
-    return c;
-}
+    inline __m128i SSE_8S_XOR(__m128i a, __m128i b)
+    {
+        __m128i c = _mm_xor_si128(a, b); //  Invert all the bits
+        return c;
+    }
 
-inline int SSE_8S_XOR_REDUCE(__m128i reg)
-{
-    unsigned int *p;
-    p = (unsigned int *)&reg;
-    return ((p[0] | p[1] | p[2] | p[3]) != 0);
+    inline int SSE_8S_XOR_REDUCE(__m128i reg)
+    {
+        unsigned int *p;
+        p = (unsigned int *)&reg;
+        return ((p[0] | p[1] | p[2] | p[3]) != 0);
+    }
 }
-
-#endif

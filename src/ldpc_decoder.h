@@ -18,33 +18,40 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #ifdef __AVX2__
-#ifndef __CDecoder_fixed_AVX__
-#define __CDecoder_fixed_AVX__
+#pragma once
 
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
+#include "ldpc_code.h"
 
-#include <xmmintrin.h>
-#include <tmmintrin.h>
-#include <smmintrin.h>
-#include <immintrin.h>
-
-#include "CDecoder.h"
-
-class CDecoder_fixed_AVX : public CDecoder
+namespace libldpc
 {
-protected:
-  __m256i *var_nodes;
-  __m256i *var_mesgs;
+    class LDPCDecoder
+    {
+    protected:
+        float sigB;
+        int nb_iters; // Use early termination criteria
+        const LDPC_Code code;
 
-public:
-  CDecoder_fixed_AVX(LDPC_Code code);
-  virtual ~CDecoder_fixed_AVX();
+        // Fixed codes
+        int vSAT_NEG_MSG;
+        int vSAT_POS_MSG;
+        int vSAT_NEG_VAR;
+        int vSAT_POS_VAR;
 
-  int getSIMDSize() { return 32; }
-};
+    public:
+        LDPCDecoder(LDPC_Code code);
+        virtual ~LDPCDecoder();
 
-#endif
-// #endif
+        virtual void setSigmaChannel(float _sigB);
+        virtual void setNumberOfIterations(int _value);
+
+        virtual void setVarRange(int min, int max);
+        virtual void setMsgRange(int min, int max);
+
+        virtual void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations) = 0;
+
+        virtual int getSIMDSize() = 0;
+    };
+}

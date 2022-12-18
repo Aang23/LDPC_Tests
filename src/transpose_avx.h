@@ -25,17 +25,19 @@
  * Created on September 17, 2013, 9:49 AM
  */
 
+#pragma once
+
 // #ifdef __AVX2__
-#ifndef DATA_INTERLEAVERS_avx_HPP
-#define DATA_INTERLEAVERS_avx_HPP
 
 #include <xmmintrin.h>
 #include <smmintrin.h>
 #include <immintrin.h>
 
-void uchar_transpose_avx(__m256i *src, __m256i *dst, int n);
-void uchar_itranspose_avx(__m256i *src, __m256i *dst, int n);
-// void test_transpose_avx();
+namespace libldpc
+{
+    void uchar_transpose_avx(__m256i *src, __m256i *dst, int n);
+    void uchar_itranspose_avx(__m256i *src, __m256i *dst, int n);
+    // void test_transpose_avx();
+}
 
-#endif /* DATA_INTERLEAVERS_HPP */
 // #endif

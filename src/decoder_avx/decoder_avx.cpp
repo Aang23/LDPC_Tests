@@ -19,27 +19,20 @@
 */
 
 // #ifdef __AVX2__
-#ifndef CLASS_CDecoder_NMS_AVX_
-#define CLASS_CDecoder_NMS_AVX_
+#include "decoder_avx.h"
 
-#include "CDecoder_fixed_AVX.h"
-
-class CDecoder_NMS_fixed_AVX : public CDecoder_fixed_AVX
+namespace libldpc
 {
-protected:
-    int factor_1;
-    int factor_2;
-    __m256i **p_vn_adr;
+    LDPCDecoderAVX::LDPCDecoderAVX(LDPC_Code code) : LDPCDecoder(code)
+    {
+        var_nodes = new __m256i[code.NOEUD];
+        var_mesgs = new __m256i[code.MESSAGE];
+    }
 
-public:
-    CDecoder_NMS_fixed_AVX(LDPC_Code code);
-    ~CDecoder_NMS_fixed_AVX();
-    void setFactor(int _factor);
-    void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations);
-
-public:
-    bool decode_8bits(char var_nodes[], char Rprime_fix[], int nombre_iterations);
-};
-
-#endif
+    LDPCDecoderAVX::~LDPCDecoderAVX()
+    {
+        delete var_nodes;
+        delete var_mesgs;
+    }
+}
 // #endif
