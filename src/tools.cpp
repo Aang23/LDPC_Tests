@@ -549,6 +549,7 @@ void test_float_transpose()
         // IACA_END
     }
 
+#if 0
     void test_transpose()
     {
         int frame_length = 32;
@@ -602,4 +603,5 @@ void test_float_transpose()
             exit(0);
         }
     }
+#endif
 }
