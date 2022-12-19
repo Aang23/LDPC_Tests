@@ -31,7 +31,6 @@ namespace libldpc
     {
     protected:
         float sigB;
-        int nb_iters; // Use early termination criteria
         const LDPC_Code code;
 
         // Fixed codes
@@ -45,7 +44,6 @@ namespace libldpc
         virtual ~LDPCDecoder();
 
         virtual void setSigmaChannel(float _sigB);
-        virtual void setNumberOfIterations(int _value);
 
         virtual void setVarRange(int min, int max);
         virtual void setMsgRange(int min, int max);

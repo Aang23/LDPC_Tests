@@ -9,6 +9,10 @@ file(GLOB_RECURSE libldpc_cs src/*.cpp)
 add_library(ldpc SHARED ${libldpc_cs})
 target_include_directories(ldpc PUBLIC src)
 
-add_executable(ldpc_test main.cpp)
-target_include_directories(ldpc_test PUBLIC src)
-target_link_libraries(ldpc_test PUBLIC ldpc)
+add_executable(ldpc_decode decode.cpp)
+target_include_directories(ldpc_decode PUBLIC src)
+target_link_libraries(ldpc_decode PUBLIC ldpc)
+
+add_executable(ldpc_benchmark benchmark.cpp)
+target_include_directories(ldpc_benchmark PUBLIC src)
+target_link_libraries(ldpc_benchmark PUBLIC ldpc)

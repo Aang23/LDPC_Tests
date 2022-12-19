@@ -32,7 +32,6 @@ namespace libldpc
 {
     LDPCDecoder::LDPCDecoder(LDPC_Code code) : code(code)
     {
-        nb_iters = 0;
     }
 
     LDPCDecoder::~LDPCDecoder()
@@ -42,11 +41,6 @@ namespace libldpc
     void LDPCDecoder::setSigmaChannel(float _SigB)
     {
         sigB = _SigB;
-    }
-
-    void LDPCDecoder::setNumberOfIterations(int _value)
-    {
-        nb_iters = _value;
     }
 
     void LDPCDecoder::setVarRange(int min, int max)
