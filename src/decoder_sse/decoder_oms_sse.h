@@ -29,6 +29,7 @@ namespace libldpc
     private:
         int offset;
         __m128i **p_vn_adr;
+        __m128i *tab_vContr;
 
     public:
         LDPCDecoder_OMS_SSE(LDPC_Code code);

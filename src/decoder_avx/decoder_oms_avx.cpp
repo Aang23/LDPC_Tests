@@ -117,6 +117,8 @@ namespace libldpc
             p_vn_adr[i] = &var_nodes[code.PosNoeudsVariable[i]];
         }
 #endif
+
+        tab_vContr = new TYPE[code.DEGREES[0]];
     }
 
 #define VERBOSE 0
@@ -129,6 +131,8 @@ namespace libldpc
 #if PETIT == 1
         delete p_vn_adr;
 #endif
+
+        delete[] tab_vContr;
     }
 
     void LDPCDecoder_OMS_AVX::setOffset(int _offset)

@@ -35,6 +35,8 @@ namespace libldpc
 
         __m256i **p_vn_adr;
 
+        __m256i *tab_vContr;
+
     public:
         LDPCDecoder_OMS_AVX(LDPC_Code code);
         ~LDPCDecoder_OMS_AVX();

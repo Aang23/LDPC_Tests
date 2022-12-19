@@ -30,6 +30,7 @@ namespace libldpc
         int factor_1;
         int factor_2;
         __m128i **p_vn_adr;
+        __m128i *tab_vContr;
 
     public:
         LDPCDecoder_NMS_SSE(LDPC_Code code);

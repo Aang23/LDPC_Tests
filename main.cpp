@@ -18,6 +18,7 @@ int main(int /*argc*/, char *argv[])
     uint8_t *output_buffer2 = new uint8_t[code._N * 32];
 
     libldpc::LDPCDecoder *dec = libldpc::create_ldpc_decoder(code, libldpc::TYPE_NMS, libldpc::SIMD_SSE);
+    dec->setNumberOfIterations(10);
 
     int simd_factor = dec->getSIMDSize();
 

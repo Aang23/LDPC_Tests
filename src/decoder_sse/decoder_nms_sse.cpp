@@ -104,6 +104,8 @@ namespace libldpc
             p_vn_adr[i] = &var_nodes[code.PosNoeudsVariable[i]];
         }
 #endif
+
+        tab_vContr = new TYPE[code.DEGREES[0]];
     }
 
     LDPCDecoder_NMS_SSE::~LDPCDecoder_NMS_SSE()
@@ -111,6 +113,8 @@ namespace libldpc
 #if PETIT == 1
         delete p_vn_adr;
 #endif
+
+        delete[] tab_vContr;
     }
 
     void LDPCDecoder_NMS_SSE::setFactor(int _factor)
@@ -168,7 +172,7 @@ namespace libldpc
 
             for (int i = 0; i < code.DEGREES_COMPUTATIONS[0]; i++)
             {
-                TYPE tab_vContr[code.DEGREES[0]];
+                // TYPE tab_vContr[code.DEGREES[0]];
                 TYPE sign = VECTOR_ZERO;
                 TYPE min1 = VECTOR_SET1(vSAT_POS_VAR);
                 TYPE min2 = min1;
@@ -282,7 +286,7 @@ namespace libldpc
                     const TYPE misign8 = VECTOR_SET1(isign8);
                     const TYPE misign8b = VECTOR_SET1(isign8b);
 
-                    TYPE tab_vContr[code.DEGREES[degn]];
+                    // TYPE tab_vContr[code.DEGREES[degn]];
                     TYPE sign = VECTOR_ZERO;
                     TYPE min1 = VECTOR_SET1(vSAT_POS_VAR);
                     TYPE min2 = min1;

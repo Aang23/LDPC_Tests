@@ -32,6 +32,7 @@ namespace libldpc
         int factor_1;
         int factor_2;
         __m256i **p_vn_adr;
+        __m256i *tab_vContr;
 
     public:
         LDPCDecoder_NMS_AVX(LDPC_Code code);
