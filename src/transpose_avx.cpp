@@ -37,6 +37,7 @@
 
 namespace libldpc
 {
+#if LIBLDPC_ENABLE_AVX
     void uchar_transpose_avx(__m256i *src, __m256i *dst, int n)
     {
         const int constN = n / 32; // NOMBRE DE PAQUET (128 bits) PAR TRAME
@@ -658,5 +659,6 @@ namespace libldpc
         }
         // IACA_END
     }
+#endif
 }
 // #endif

@@ -19,8 +19,11 @@
 */
 
 #include "decoder_nms_sse.h"
-#include "fixed_SSE_Functionstruc.h"
 #include "tools.h"
+
+#if LIBLDPC_ENABLE_SSE
+
+#include "fixed_SSE_Functionstruc.h"
 
 #define TYPE __m128i
 
@@ -394,3 +397,4 @@ namespace libldpc
         ////////////////////////////////////////////////////////////////////////////
     }
 }
+#endif

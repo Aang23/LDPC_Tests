@@ -20,7 +20,9 @@
 
 #pragma once
 
-// #ifdef __AVX2__
+#include "ldpc_decoder.h"
+
+#if LIBLDPC_ENABLE_AVX
 
 #include <iostream>
 #include <stdio.h>
@@ -30,8 +32,6 @@
 #include <tmmintrin.h>
 #include <smmintrin.h>
 #include <immintrin.h>
-
-#include "ldpc_decoder.h"
 
 namespace libldpc
 {
@@ -48,5 +48,4 @@ namespace libldpc
         int getSIMDSize() { return 32; }
     };
 }
-
-// #endif
+#endif

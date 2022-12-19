@@ -25,9 +25,11 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "config.h"
 
 namespace libldpc
 {
+#if LIBLDPC_ENABLE_SSE
     extern void sse_trans(float const *inp, float *out, int nrows, int ncols);
     extern void sse_trans(uint8_t const *inp, uint8_t *out, int nrows, int ncols);
 
@@ -39,6 +41,7 @@ namespace libldpc
     extern void uchar_transpose_sse(__m128i *src, __m128i *dst, int n);
     extern void uchar_itranspose_sse(__m128i *src, __m128i *dst, int n);
     extern void test_transpose();
+#endif
 
     //
     // FONCTIONS POUR TRANSPOSER UNE MATRICE TYPE SSE LORSQUE LA TAILLE DE LA

@@ -15,6 +15,12 @@ int main(int /*argc*/, char *argv[])
 
     libldpc::LDPCDecoder *dec = libldpc::create_ldpc_decoder(code, libldpc::TYPE_NMS, libldpc::SIMD_SSE);
 
+    if (dec == nullptr)
+    {
+        printf("Decoder not available!\n");
+        return 1;
+    }
+
     int simd_factor = dec->getSIMDSize();
 
     printf("SIMD Size is %d\n", simd_factor);

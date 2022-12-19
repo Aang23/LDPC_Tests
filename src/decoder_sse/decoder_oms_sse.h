@@ -22,6 +22,7 @@
 
 #include "decoder_sse.h"
 
+#if LIBLDPC_ENABLE_SSE
 namespace libldpc
 {
     class LDPCDecoder_OMS_SSE : public LDPCDecoderSSE
@@ -42,3 +43,4 @@ namespace libldpc
         // bool decode_generic(char var_nodes[], char Rprime_fix[], int nombre_iterations);
     };
 }
+#endif

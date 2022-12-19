@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include "ldpc_code.h"
+#include "config.h"
 
 namespace libldpc
 {

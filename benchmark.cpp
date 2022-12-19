@@ -8,6 +8,12 @@ int main(int /*argc*/, char *argv[])
 
     libldpc::LDPCDecoder *dec = libldpc::create_ldpc_decoder(code, libldpc::TYPE_NMS, libldpc::SIMD_SSE);
 
+    if (dec == nullptr)
+    {
+        printf("Decoder not available!\n");
+        return 1;
+    }
+
     int simd_factor = dec->getSIMDSize();
 
     int8_t *input_buffer = new int8_t[code._N * simd_factor];

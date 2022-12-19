@@ -27,7 +27,9 @@
 
 #pragma once
 
-// #ifdef __AVX2__
+#include "config.h"
+
+#if LIBLDPC_ENABLE_AVX
 
 #include <xmmintrin.h>
 #include <smmintrin.h>
@@ -39,5 +41,4 @@ namespace libldpc
     void uchar_itranspose_avx(__m256i *src, __m256i *dst, int n);
     // void test_transpose_avx();
 }
-
-// #endif
+#endif

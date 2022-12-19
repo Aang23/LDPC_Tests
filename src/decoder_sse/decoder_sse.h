@@ -20,6 +20,9 @@
 
 #pragma once
 
+#include "ldpc_decoder.h"
+
+#if LIBLDPC_ENABLE_SSE
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,9 +30,6 @@
 #include <xmmintrin.h>
 #include <tmmintrin.h>
 #include <smmintrin.h>
-
-// #include "Constantes/constantes_sse.h"
-#include "ldpc_decoder.h"
 
 namespace libldpc
 {
@@ -46,3 +46,4 @@ namespace libldpc
         int getSIMDSize() { return 16; }
     };
 }
+#endif

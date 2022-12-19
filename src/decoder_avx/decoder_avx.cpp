@@ -23,6 +23,7 @@
 
 namespace libldpc
 {
+#if LIBLDPC_ENABLE_AVX
     LDPCDecoderAVX::LDPCDecoderAVX(LDPC_Code code) : LDPCDecoder(code)
     {
         var_nodes = new __m256i[code.NOEUD];
@@ -34,5 +35,6 @@ namespace libldpc
         delete var_nodes;
         delete var_mesgs;
     }
+#endif
 }
 // #endif

@@ -21,6 +21,8 @@
 #include "decoder_oms_sse.h"
 #include "tools.h"
 
+#if LIBLDPC_ENABLE_SSE
+
 #define TYPE __m128i
 
 #define VECTOR_LOAD(ptr) (_mm_load_si128(ptr))
@@ -374,3 +376,4 @@ namespace libldpc
         return 1;
     }
 }
+#endif

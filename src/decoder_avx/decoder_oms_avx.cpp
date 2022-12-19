@@ -18,10 +18,11 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #ifdef __AVX2__
 #include "decoder_oms_avx.h"
 #include "transpose_avx.h"
 #include "tools.h"
+
+#if LIBLDPC_ENABLE_AVX
 
 #define TYPE __m256i
 
@@ -393,4 +394,4 @@ namespace libldpc
         return 1;
     }
 }
-// #endif
+#endif

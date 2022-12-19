@@ -20,6 +20,7 @@
 
 #include "decoder_sse.h"
 
+#if LIBLDPC_ENABLE_SSE
 namespace libldpc
 {
     LDPCDecoderSSE::LDPCDecoderSSE(LDPC_Code code) : LDPCDecoder(code)
@@ -34,3 +35,4 @@ namespace libldpc
         delete var_mesgs;
     }
 }
+#endif

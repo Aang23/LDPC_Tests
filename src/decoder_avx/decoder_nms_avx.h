@@ -20,10 +20,9 @@
 
 #pragma once
 
-// #ifdef __AVX2__
-
 #include "decoder_avx.h"
 
+#if LIBLDPC_ENABLE_AVX
 namespace libldpc
 {
     class LDPCDecoder_NMS_AVX : public LDPCDecoderAVX
@@ -44,4 +43,4 @@ namespace libldpc
         bool decode_8bits(char var_nodes[], char Rprime_fix[], int nombre_iterations);
     };
 }
-// #endif
+#endif

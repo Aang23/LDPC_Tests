@@ -62,7 +62,8 @@ namespace libldpc
     {
         if (type == TYPE_MS && simd == SIMD_NONE)
             return new LDPCDecoder_MS_Layered(code);
-        ////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+#if LIBLDPC_ENABLE_SSE
         else if (type == TYPE_NMS && simd == SIMD_SSE)
         {
             auto p = new libldpc::LDPCDecoder_NMS_SSE(code);
@@ -72,6 +73,8 @@ namespace libldpc
                 p->setFactor(meta);
             return p;
         }
+#endif
+#if LIBLDPC_ENABLE_AVX
         else if (type == TYPE_NMS && simd == SIMD_AVX)
         {
             auto p = new libldpc::LDPCDecoder_NMS_AVX(code);
@@ -81,7 +84,9 @@ namespace libldpc
                 p->setFactor(meta);
             return p;
         }
-        ////////////////////////////////////////////////////
+#endif
+////////////////////////////////////////////////////
+#if LIBLDPC_ENABLE_SSE
         else if (type == TYPE_OMS && simd == SIMD_SSE)
         {
             auto p = new libldpc::LDPCDecoder_OMS_SSE(code);
@@ -91,6 +96,8 @@ namespace libldpc
                 p->setOffset(meta);
             return p;
         }
+#endif
+#if LIBLDPC_ENABLE_AVX
         else if (type == TYPE_OMS && simd == SIMD_AVX)
         {
             auto p = new libldpc::LDPCDecoder_OMS_AVX(code);
@@ -100,6 +107,7 @@ namespace libldpc
                 p->setOffset(meta);
             return p;
         }
+#endif
         ////////////////////////////////////////////////////
         else
             return nullptr;

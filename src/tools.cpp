@@ -22,6 +22,7 @@
 
 namespace libldpc
 {
+#if LIBLDPC_ENABLE_SSE
     inline void transpose4x4_SSE(float const *A, float *B, const int lda, const int ldb)
     {
         __m128 row1 = _mm_load_ps(&A[0 * lda]);
@@ -131,6 +132,7 @@ namespace libldpc
         //    float *B = (float*)_mm_malloc(sizeof(float)*lda*ldb, 64);
         transpose_block_SSE4x4(inp, out, nrows, ncols, ldb, lda, BLOCK_SIZE);
     }
+#endif
 
     void x86_trans_16d(unsigned char *src, unsigned char *dst, int n)
     {
