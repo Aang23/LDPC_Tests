@@ -216,7 +216,7 @@ namespace libldpc
             {
                 // IACA_START
 
-                TYPE tab_vContr[code.DEGREES[0]];
+                // TYPE tab_vContr[code.DEGREES[0]];
                 TYPE sign = VECTOR_ZERO;
                 TYPE min1 = VECTOR_SET1(vSAT_POS_VAR);
                 TYPE min2 = min1;
@@ -312,7 +312,7 @@ namespace libldpc
                     const TYPE misign8 = VECTOR_SET1(isign8);
                     const TYPE misign8b = VECTOR_SET1(isign8b);
 
-                    TYPE tab_vContr[code.DEGREES[degn]];
+                    // TYPE tab_vContr[code.DEGREES[degn]];
                     TYPE sign = zero;
                     TYPE min1 = VECTOR_SET1(vSAT_POS_VAR);
                     TYPE min2 = min1;
