@@ -15,7 +15,12 @@ add_library(ldpc SHARED ${libldpc_cs})
 target_include_directories(ldpc PUBLIC src)
 
 if(CPU_IS_x86)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1 -mavx2")
+    if(WIN32)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /d2archSSE42 /d2archAVX")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1 -mavx2")
+    endif()
+
     target_compile_definitions(ldpc PUBLIC LIBLDPC_ENABLE_SSE=1)
     target_compile_definitions(ldpc PUBLIC LIBLDPC_ENABLE_AVX=1)
 else()
