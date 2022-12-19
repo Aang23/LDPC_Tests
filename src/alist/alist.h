@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-#include "sparse_matrix.hpp"
+#include "sparse_matrix.h"
 
 namespace libldpc
 {

@@ -2,7 +2,7 @@
 #include <sstream>
 
 // #include "Tools/Exception/exception.hpp"
-#include "matrix.hpp"
+#include "matrix.h"
 
 using namespace libldpc;
 using namespace libldpc::tools;

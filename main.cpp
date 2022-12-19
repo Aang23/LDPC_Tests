@@ -1,9 +1,5 @@
 #include <fstream>
-#include "decoder_sse/decoder_nms_sse.h"
-#include "decoder_avx/decoder_nms_avx.h"
-#include "decoder_sse/decoder_oms_sse.h"
-#include "decoder_avx/decoder_oms_avx.h"
-#include "decoder_cpu/decoder_ms_layered.h"
+#include "libldpc.h"
 
 int main(int /*argc*/, char *argv[])
 {
@@ -35,6 +31,6 @@ int main(int /*argc*/, char *argv[])
             output_buffer2[i / 8] = output_buffer2[i / 8] << 1 | (output_buffer[i] > 0);
 
         data_out.write((char *)output_buffer2, (code._N * simd_factor) / 8);
-        data_out.flush();
+        // data_out.flush();
     }
 }

@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "matrix.hpp"
+#include "matrix.h"
 
 namespace libldpc
 {

@@ -23,15 +23,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-// #include <volk/volk_alloc.hh>
 #include <vector>
 
 namespace libldpc
 {
     struct LDPC_Code
     {
-        int NB_DEGRES = 0;
-
         int _N = 0;
         int _K = 0;
         int _M = 0;
@@ -39,23 +36,11 @@ namespace libldpc
         int NOEUD = 0;
         int MESSAGE = 0;
 
-        int NmoinsK = 0;
+        int NminusK = 0;
 
-        // int DEG_1 = 0;
-        // int DEG_2 = 0;
         std::vector<int> DEGREES;
-
-        // int DEG_1_COMPUTATIONS = 0;
-        // int DEG_2_COMPUTATIONS = 0;
         std::vector<int> DEGREES_COMPUTATIONS;
-
-        int NB_ITERATIONS = 0;
-        int NB_BITS_VARIABLES = 0;
-        int NB_BITS_MESSAGES = 0;
-        int SAT_POS_VAR = 0;
-        int SAT_NEG_VAR = 0;
-        int SAT_POS_MSG = 0;
-        int SAT_NEG_MSG = 0;
+        int NB_DEGRES = 0;
 
         std::vector<unsigned short> PosNoeudsVariable; // Not sure if using SIMD there helps a lot at all
 
@@ -66,12 +51,7 @@ namespace libldpc
             NOEUD = _N;
             MESSAGE = _M;
 
-            NmoinsK = (_N - _K);
-
-            SAT_POS_VAR = ((0x0001 << (NB_BITS_VARIABLES - 1)) - 1);
-            SAT_NEG_VAR = (-(0x0001 << (NB_BITS_VARIABLES - 1)) + 1);
-            SAT_POS_MSG = ((0x0001 << (NB_BITS_MESSAGES - 1)) - 1);
-            SAT_NEG_MSG = (-(0x0001 << (NB_BITS_MESSAGES - 1)) + 1);
+            NminusK = (_N - _K);
         }
     };
 

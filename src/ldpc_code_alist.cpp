@@ -1,5 +1,5 @@
 #include "./ldpc_code.h"
-#include "alist/alist.hpp"
+#include "alist/alist.h"
 #include <algorithm>
 #include <map>
 #include <fstream>
@@ -88,10 +88,6 @@ namespace libldpc
         code.DEGREES = degrees;
 
         code.DEGREES_COMPUTATIONS = degrees_compus;
-
-        code.NB_ITERATIONS = 20;
-        code.NB_BITS_VARIABLES = 8; // 8
-        code.NB_BITS_MESSAGES = 6;  // 6
 
         code.setup();
 

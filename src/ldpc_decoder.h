@@ -50,7 +50,7 @@ namespace libldpc
         virtual void setVarRange(int min, int max);
         virtual void setMsgRange(int min, int max);
 
-        virtual void decode(char var_nodes[], char Rprime_fix[], int nombre_iterations) = 0;
+        virtual void decode(char input[], char output[], int iterations) = 0;
 
         virtual int getSIMDSize() = 0;
     };

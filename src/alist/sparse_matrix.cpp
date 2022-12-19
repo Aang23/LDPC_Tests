@@ -4,7 +4,7 @@
 #include <ios>
 
 // #include "Tools/Exception/exception.hpp"
-#include "sparse_matrix.hpp"
+#include "sparse_matrix.h"
 
 using namespace libldpc;
 using namespace libldpc::tools;

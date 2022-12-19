@@ -6,8 +6,6 @@ namespace libldpc
     {
         LDPC_Code code;
 
-        code.NB_DEGRES = 1;
-
         code._N = 8176;  // Nombre de Variables
         code._K = 1022;  // Nombre de Checks
         code._M = 32704; // Nombre de Messages
@@ -15,10 +13,6 @@ namespace libldpc
         code.DEGREES = {32};
 
         code.DEGREES_COMPUTATIONS = {1022};
-
-        code.NB_ITERATIONS = 20;
-        code.NB_BITS_VARIABLES = 8; // 8
-        code.NB_BITS_MESSAGES = 6;  // 6
 
         code.setup();
 
