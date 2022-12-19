@@ -9,6 +9,7 @@ namespace libldpc
     protected:
         int64_t **p_vn_addr; // From a CN perspective, the addresses of all neighbouring VNs
         int64_t *var_nodes;
+        int64_t *v_to_c_msgs;
 
     public:
         LDPCDecoder_MS_Layered(LDPC_Code code);

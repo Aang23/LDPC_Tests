@@ -11,12 +11,15 @@ namespace libldpc
         {
             p_vn_addr[i] = &var_nodes[code.PosNoeudsVariable[i]];
         }
+
+        v_to_c_msgs = new int64_t[cn_deg_max];
     }
 
     LDPCDecoder_MS_Layered::~LDPCDecoder_MS_Layered()
     {
         delete p_vn_addr;
         delete[] var_nodes;
+        delete[] v_to_c_msgs;
     }
 
     void LDPCDecoder_MS_Layered::decode(
@@ -25,7 +28,6 @@ namespace libldpc
         int nombre_iterations)
     {
         size_t cn_deg = cn_deg_max;
-        int64_t v_to_c_msgs[cn_deg_max];
         size_t cn_offset;
         int64_t sign;
         int64_t minLLR;
