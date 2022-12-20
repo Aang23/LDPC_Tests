@@ -169,13 +169,6 @@ namespace libldpc
         template <typename Ta, typename To, class Compare>
         void mutual_sort(std::vector<Ta> &vec_abscissa, std::vector<std::vector<To>> &vec_ordinate, Compare comp)
         {
-#ifndef NDEBUG
-            bool good = true;
-            for (unsigned k = 0; k < vec_ordinate.size(); k++)
-                good &= vec_abscissa.size() == vec_ordinate[k].size();
-            assert(good);
-#endif
-
             for (unsigned i = 1; i < vec_abscissa.size(); i++)
                 for (unsigned j = i; j > 0 && comp(vec_abscissa[j], vec_abscissa[j - 1]); j--)
                 {
@@ -212,13 +205,6 @@ namespace libldpc
         template <typename Ta, typename To>
         void mutual_unique(std::vector<Ta> &vec_abscissa, std::vector<std::vector<To>> &vec_ordinate)
         {
-#ifndef NDEBUG
-            bool good = true;
-            for (unsigned k = 0; k < vec_ordinate.size(); k++)
-                good &= vec_abscissa.size() == vec_ordinate[k].size();
-            assert(good);
-#endif
-
             unsigned r = 0;
 
             for (unsigned i = 1; i < vec_abscissa.size(); i++)
